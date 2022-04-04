@@ -1,3 +1,5 @@
+// @ts-check
+
 const { spawnSync } = require('child_process')
 
 onmessage = function (e) {

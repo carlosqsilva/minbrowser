@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; worker-src blob:;" />
 
     <title>Min</title>
 
@@ -113,12 +113,12 @@
       class="theme-background-color theme-text-color windowDragHandle"
       tabindex="-1"
     >
-      <button
+      <!-- <button
         id="menu-button"
         class="navbar-action-button i carbon:overflow-menu-vertical"
         data-label="openMenu"
         tabindex="-1"
-      ></button>
+      ></button> -->
       <div id="toolbar-navigation-buttons" hidden>
           <button
           id="back-button"
@@ -155,32 +155,15 @@
       data-label="viewTasks"
       tabindex="-1"
     >
-      <svg
-        version="1.1"
-        viewBox="0.0 0.0 26.0 26.0"
-        fill="none"
-        stroke="none"
-        stroke-linecap="square"
-        stroke-miterlimit="10"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
+      <svg 
+        viewBox="0 0 26 26" 
+        fill="none" 
+        stroke-linecap="square" 
+        stroke-miterlimit="10" 
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clip-path="url(#p.0)">
-          <path
-            fill="currentColor"
-            d="m0 0l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
-          <path
-            fill="currentColor"
-            d="m0 11l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
-          <path
-            fill="currentColor"
-            d="m0 22l32 0l0 4l-32 0z"
-            fill-rule="evenodd"
-          />
+        <g clip-path="url(#p.0)" fill="currentColor" fill-rule="evenodd">
+          <path d="M0 0h32v4H0zM0 11h32v4H0zM0 22h32v4H0z"/>
         </g>
       </svg>
     </button>

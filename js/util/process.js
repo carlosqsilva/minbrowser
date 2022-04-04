@@ -1,18 +1,22 @@
+// @ts-check
+
 /*
 Helper class to control child process output.
 Bufferizes output from stdout and stderr, waits until the process exits,
 and then resolves the promise with gathered data.
 */
 
+// const {} = require("electron")
 const { spawn, spawnSync } = require('child_process')
+const { platformType } = require("./utils")
 
-const worker = new Worker('js/util/processWorker.js')
+const worker = new Worker('./processWorker.js')
 
 let processPath = process.env.PATH
 
 // we need to locate the op binary in this directory on macOS - see https://github.com/minbrowser/min/issues/1028
 // normally, it is present in the path when running in development, but not when the app is launched after being packaged
-if (platformType === 'mac' && !processPath.includes('/usr/local/bin')) {
+if (platformType === 'darwin' && !processPath.includes('/usr/local/bin')) {
   processPath += ':/usr/local/bin'
 }
 
@@ -86,7 +90,7 @@ class ProcessSpawner {
 
   checkCommandExists () {
     return new Promise((resolve, reject) => {
-      const checkCommand = (platformType === 'windows') ? 'where' : 'which'
+      const checkCommand = (platformType === 'win32') ? 'where' : 'which'
       const process = spawn(checkCommand, [this.command], { env: this.env })
 
       process.stdout.on('data', (data) => {

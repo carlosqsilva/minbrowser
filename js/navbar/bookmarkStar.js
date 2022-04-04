@@ -1,7 +1,12 @@
-const places = require('places/places.js')
-const bookmarkEditor = require('searchbar/bookmarkEditor.js')
-const searchbar = require('searchbar/searchbar.js')
-const searchbarPlugins = require('searchbar/searchbarPlugins.js')
+// @ts-check
+
+const places = require('../places/places.js')
+const bookmarkEditor = require('../searchbar/bookmarkEditor.js')
+const searchbar = require('../searchbar/searchbar.js')
+const searchbarPlugins = require('../searchbar/searchbarPlugins.js')
+
+const {tasks} = require("../tabState")
+const {l} = require("../../localization")
 
 const bookmarkStar = {
   create: function () {
@@ -24,7 +29,7 @@ const bookmarkStar = {
 
     places.updateItem(tabs.get(tabId).url, {
       isBookmarked: true,
-      title: tabs.get(tabId).title // if this page is open in a private tab, the title may not be saved already, so it needs to be included here
+      title: tasks.tabs.get(tabId).title // if this page is open in a private tab, the title may not be saved already, so it needs to be included here
     }, function () {
       star.classList.remove('carbon:star')
       star.classList.add('carbon:star-filled')
@@ -32,7 +37,7 @@ const bookmarkStar = {
 
       var editorInsertionPoint = document.createElement('div')
       searchbarPlugins.getContainer('simpleBookmarkTagInput').appendChild(editorInsertionPoint)
-      bookmarkEditor.show(tabs.get(tabs.getSelected()).url, editorInsertionPoint, function (newBookmark) {
+      bookmarkEditor.show(tasks.tabs.get(tasks.tabs.getSelected()).url, editorInsertionPoint, function (newBookmark) {
         if (!newBookmark) {
           // bookmark was deleted
           star.classList.add('carbon:star')
@@ -46,7 +51,7 @@ const bookmarkStar = {
   },
   update: function (tabId, star) {
     star.setAttribute('data-tab', tabId)
-    const currentURL = tabs.get(tabId).url
+    const currentURL = tasks.tabs.get(tabId).url
 
     if (!currentURL) { // no url, can't be bookmarked
       star.hidden = true

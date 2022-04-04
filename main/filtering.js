@@ -1,10 +1,18 @@
-var defaultFilteringSettings = {
+// @ts-check
+
+const fs = require("fs")
+const path = require("path")
+const { app, session, webContents } = require("electron")
+
+const settings = require("../js/util/settings/settingsMain")
+
+const defaultFilteringSettings = {
   blockingLevel: 1,
   contentTypes: [],
   exceptionDomains: []
 }
 
-var enabledFilteringOptions = {
+const enabledFilteringOptions = {
   blockingLevel: 0,
   contentTypes: [], // script, image
   exceptionDomains: []
@@ -75,7 +83,7 @@ var electronABPElementTypeMap = {
   other: 'other' // ?
 }
 
-var parser = require('./ext/abp-filter-parser-modified/abp-filter-parser.js')
+var parser = require('../ext/abp-filter-parser-modified/abp-filter-parser.js')
 var parsedFilterData = {}
 
 function initFilterList () {

@@ -1,3 +1,7 @@
+// @ts-check
+
+const {ipcRenderer: ipc} = require("electron")
+
 var isFocusMode = false
 
 ipc.on('enterFocusMode', function () {

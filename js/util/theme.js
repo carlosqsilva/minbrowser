@@ -1,6 +1,10 @@
-if (typeof require !== 'undefined') {
-  var settings = require('util/settings/settings.js')
-}
+// @ts-check
+
+const settings = require('./settings/settings.js')
+
+// if (typeof require !== 'undefined') {
+//   var settings = require('./settings/settings.js')
+// }
 
 function enableDarkMode () {
   document.body.classList.add('dark-mode')

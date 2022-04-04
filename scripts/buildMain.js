@@ -1,43 +1,32 @@
 const path = require('path')
-const fs = require('fs')
+const esbuild = require("esbuild")
 
 const outFile = path.resolve(__dirname, '../main.build.js')
 
-const modules = [
-  'dist/localization.build.js',
-  'main/menu.js',
-  'main/touchbar.js',
-  'main/registryConfig.js',
-  'main/main.js',
-  'js/util/settings/settingsMain.js',
-  'main/filtering.js',
-  'main/viewManager.js',
-  'main/download.js',
-  'main/UASwitcher.js',
-  'main/permissionManager.js',
-  'main/prompt.js',
-  'main/remoteMenu.js',
-  'main/remoteActions.js',
-  'main/keychainService.js',
-  'js/util/proxy.js',
-  'main/themeMain.js'
-]
-
-function buildMain () {
-  // build localization support first, since it is included in the bundle
-  require('./buildLocalization.js')()
-
-  /* concatenate modules */
-  let output = ''
-  modules.forEach(function (script) {
-    output += fs.readFileSync(path.resolve(__dirname, '../', script)) + ';\n'
+async function buildWithEsbuild() {
+  const result = await esbuild.build({
+    bundle: true,
+    minify: false,
+    keepNames: true,
+    metafile: true,
+    outfile: outFile,
+    platform: "node",
+    target: "node16",
+    external: ["electron"],
+    entryPoints: ['./main/index.js'],
   })
 
-  fs.writeFileSync(outFile, output, 'utf-8')
+  const output = result?.metafile?.outputs || {};
+
+  Object.keys(output).forEach((fileName) => {
+    // convert to kilobyte
+    const fileSize = output[fileName].bytes / 1000;
+    console.log(`${fileName} => ${fileSize} Kb`);
+  });
 }
 
 if (module.parent) {
-  module.exports = buildMain
+  module.exports = buildWithEsbuild
 } else {
-  buildMain()
+  buildWithEsbuild()
 }

@@ -1,13 +1,18 @@
-var searchbar = require('searchbar/searchbar.js')
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
-var searchbarUtils = require('searchbar/searchbarUtils.js')
-var bangsPlugin = require('searchbar/bangsPlugin.js')
-var places = require('places/places.js')
-var urlParser = require('util/urlParser.js')
-var formatRelativeDate = require('util/relativeDate.js')
+// @ts-check
 
-var tabEditor = require('navbar/tabEditor.js')
-var bookmarkEditor = require('searchbar/bookmarkEditor.js')
+const searchbar = require('./searchbar.js')
+const searchbarPlugins = require('./searchbarPlugins.js')
+const searchbarUtils = require('./searchbarUtils.js')
+const bangsPlugin = require('./bangsPlugin.js')
+const places = require('../places/places.js')
+const urlParser = require('../util/urlParser.js')
+const formatRelativeDate = require('../util/relativeDate.js')
+
+const tabEditor = require('../navbar/tabEditor.js')
+const bookmarkEditor = require('./bookmarkEditor.js')
+
+const {l} = require("../../localization")
+const {tasks} = require("../tabState")
 
 const maxTagSuggestions = 12
 
@@ -90,7 +95,7 @@ const bookmarkManager = {
 
         parsedText.tags.forEach(function (tag) {
           tagBar.appendChild(bookmarkEditor.getTagElement(tag, true, function () {
-            tabEditor.show(tabs.getSelected(), '!bookmarks ' + text.replace('#' + tag, '').trim())
+            tabEditor.show(tasks.tabs.getSelected(), '!bookmarks ' + text.replace('#' + tag, '').trim())
           }, { autoRemove: false }))
         })
         // it doesn't make sense to display tag suggestions if there's a search, since the suggestions are generated without taking the search into account
@@ -98,7 +103,7 @@ const bookmarkManager = {
           suggestedTags.forEach(function (suggestion, index) {
             var el = bookmarkEditor.getTagElement(suggestion, false, function () {
               var needsSpace = text.slice(-1) !== ' ' && text.slice(-1) !== ''
-              tabEditor.show(tabs.getSelected(), '!bookmarks ' + text + (needsSpace ? ' #' : '#') + suggestion + ' ')
+              tabEditor.show(tasks.tabs.getSelected(), '!bookmarks ' + text + (needsSpace ? ' #' : '#') + suggestion + ' ')
             })
             if (index >= maxTagSuggestions) {
               el.classList.add('overflowing')

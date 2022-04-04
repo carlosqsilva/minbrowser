@@ -1,10 +1,15 @@
-var searchbar = require('searchbar/searchbar.js')
-var webviews = require('webviews.js')
-var modalMode = require('modalMode.js')
-var urlParser = require('util/urlParser.js')
-var keyboardNavigationHelper = require('util/keyboardNavigationHelper.js')
-var bookmarkStar = require('navbar/bookmarkStar.js')
-var contentBlockingToggle = require('navbar/contentBlockingToggle.js')
+// @ts-check
+
+const searchbar = require('../searchbar/searchbar.js')
+const webviews = require('../webviews.js')
+const modalMode = require('../modalMode.js')
+const urlParser = require('../util/urlParser.js')
+const keyboardNavigationHelper = require('../util/keyboardNavigationHelper.js')
+const bookmarkStar = require('./bookmarkStar.js')
+const contentBlockingToggle = require('./contentBlockingToggle.js')
+
+const {l} = require("../../localization")
+const {tasks} = require("../tabState")
 
 const tabEditor = {
   container: document.getElementById('tab-editor'),
@@ -25,7 +30,7 @@ const tabEditor = {
 
     document.body.classList.add('is-edit-mode')
 
-    var currentURL = urlParser.getSourceURL(tabs.get(tabId).url)
+    var currentURL = urlParser.getSourceURL(tasks.tabs.get(tabId).url)
     if (currentURL === 'min://newtab') {
       currentURL = ''
     }
@@ -49,7 +54,7 @@ const tabEditor = {
     }
 
     /* animation */
-    if (tabs.count() > 1) {
+    if (tasks.tabs.count() > 1) {
       requestAnimationFrame(function () {
         var item = document.querySelector(`.tab-item[data-tab="${tabId}"]`)
         var originCoordinates = item.getBoundingClientRect()

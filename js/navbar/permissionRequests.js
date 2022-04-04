@@ -1,5 +1,7 @@
+// @ts-check
+
 const { ipcRenderer } = require('electron')
-const webviews = require('webviews.js')
+const webviews = require('../webviews.js')
 
 const permissionRequests = {
   requests: [],

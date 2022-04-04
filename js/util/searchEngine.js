@@ -1,16 +1,20 @@
-if (typeof require !== 'undefined') {
-  var settings = require('util/settings/settings.js')
-}
+// @ts-check
+
+const settings = require('./settings/settings.js')
+
+// if (typeof require !== 'undefined') {
+//   var settings = require('./settings/settings.js')
+// }
 // otherwise, assume window.settings exists already
 
-var currentSearchEngine = {
+let currentSearchEngine = {
   name: '',
   searchURL: '%s'
 }
 
-var defaultSearchEngine = 'DuckDuckGo'
+let defaultSearchEngine = 'DuckDuckGo'
 
-var searchEngines = {
+const searchEngines = {
   DuckDuckGo: {
     name: 'DuckDuckGo',
     searchURL: 'https://duckduckgo.com/?q=%s&t=min',
@@ -34,28 +38,10 @@ var searchEngines = {
     suggestionsURL: 'https://search.yahoo.com/sugg/os?command=%s&output=fxjson',
     queryParam: 'p'
   },
-  Baidu: {
-    name: 'Baidu',
-    searchURL: 'https://www.baidu.com/s?wd=%s',
-    suggestionsURL: 'https://www.baidu.com/su?wd=%s&action=opensearch',
-    queryParam: 'wd'
-  },
-  StartPage: {
-    name: 'StartPage',
-    searchURL: 'https://www.startpage.com/do/search?q=%s',
-    suggestionsURL: 'https://www.startpage.com/cgi-bin/csuggest?query=%s&format=json',
-    queryParam: 'q'
-  },
   Ecosia: {
     name: 'Ecosia',
     searchURL: 'https://www.ecosia.org/search?q=%s',
     suggestionsURL: 'https://ac.ecosia.org/autocomplete?q=%s&type=list',
-    queryParam: 'q'
-  },
-  Qwant: {
-    name: 'Qwant',
-    searchURL: 'https://www.qwant.com/?q=%s',
-    suggestionsURL: 'https://api.qwant.com/api/suggest/?q=%s&client=opensearch',
     queryParam: 'q'
   },
   Wikipedia: {
@@ -63,12 +49,6 @@ var searchEngines = {
     searchURL: 'https://wikipedia.org/w/index.php?search=%s',
     suggestionsURL: 'https://wikipedia.org/w/api.php?action=opensearch&search=%s',
     queryParam: 'search'
-  },
-  Yandex: {
-    name: 'Yandex',
-    searchURL: 'https://yandex.com/search/?text=%s',
-    suggestionsURL: 'https://suggest.yandex.com/suggest-ff.cgi?part=%s',
-    queryParam: 'text'
   },
   none: {
     name: 'none',
@@ -100,7 +80,7 @@ settings.listen('searchEngine', function (value) {
   }
 })
 
-var searchEngine = {
+const searchEngine = {
   getCurrent: function () {
     return currentSearchEngine
   },

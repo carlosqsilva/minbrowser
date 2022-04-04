@@ -1,7 +1,9 @@
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
-var searchbarUtils = require('searchbar/searchbarUtils.js')
+// @ts-check
 
-var browserUI = require('browserUI.js')
+var searchbarPlugins = require('./searchbarPlugins.js')
+var searchbarUtils = require('./searchbarUtils.js')
+
+var browserUI = require('../browserUI.js')
 
 function getFormattedTitle (tab) {
   if (tab.title) {

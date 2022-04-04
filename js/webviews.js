@@ -1,16 +1,24 @@
-var urlParser = require('util/urlParser.js')
-var settings = require('util/settings/settings.js')
+// @ts-check
+
+const {ipcRenderer: ipc} = require("electron")
+const {platformType} = require("./util/utils")
+const throttle = require("lodash.throttle")
+
+const urlParser = require('./util/urlParser.js')
+const settings = require('./util/settings/settings.js')
 
 /* implements selecting webviews, switching between them, and creating new ones. */
 
-var placeholderImg = document.getElementById('webview-placeholder')
+const placeholderImg = document.getElementById('webview-placeholder')
+
+const {tasks} = require("./tabState")
 
 var hasSeparateTitlebar = settings.get('useSeparateTitlebar')
 var windowIsMaximized = false // affects navbar height on Windows
 var windowIsFullscreen = false
 
 function captureCurrentTab (options) {
-  if (tabs.get(tabs.getSelected()).private) {
+  if (tasks.tabs.get(tasks.tabs.getSelected()).private) {
     // don't capture placeholders for private tabs
     return
   }
@@ -30,12 +38,12 @@ function captureCurrentTab (options) {
 // called whenever a new page starts loading, or an in-page navigation occurs
 function onPageURLChange (tab, url) {
   if (url.indexOf('https://') === 0 || url.indexOf('about:') === 0 || url.indexOf('chrome:') === 0 || url.indexOf('file://') === 0) {
-    tabs.update(tab, {
+    tasks.tabs.update(tab, {
       secure: true,
       url: url
     })
   } else {
-    tabs.update(tab, {
+    tasks.tabs.update(tab, {
       secure: false,
       url: url
     })
@@ -52,7 +60,7 @@ function onNavigate (tabId, url, isInPlace, isMainFrame, frameProcessId, frameRo
 // called whenever the page finishes loading
 function onPageLoad (tabId) {
   // capture a preview image if a new page has been loaded
-  if (tabId === tabs.getSelected()) {
+  if (tabId === tasks.tabs.getSelected()) {
     setTimeout(function () {
       // sometimes the page isn't visible until a short time after the did-finish-load event occurs
       captureCurrentTab()
@@ -154,7 +162,7 @@ const webviews = {
         height: window.innerHeight
       }
     } else {
-      if (!hasSeparateTitlebar && (window.platformType === 'linux' || window.platformType === 'windows') && !windowIsMaximized && !windowIsFullscreen) {
+      if (!hasSeparateTitlebar && (platformType === 'linux' || platformType === 'win32') && !windowIsMaximized && !windowIsFullscreen) {
         var navbarHeight = 48
       } else {
         var navbarHeight = 36
@@ -170,7 +178,7 @@ const webviews = {
     }
   },
   add: function (tabId, existingViewId) {
-    var tabData = tabs.get(tabId)
+    var tabData = tasks.tabs.get(tabId)
 
     // needs to be called before the view is created to that its listeners can be registered
     if (tabData.scrollPosition) {
@@ -312,7 +320,7 @@ const webviews = {
     TODO we want to do the same thing for reader mode as well, but only if the last page was redirected to reader mode (since it could also be an unrelated page)
     */
 
-    var url = tabs.get(id).url
+    var url = tasks.tabs.get(id).url
 
     if (url.startsWith(urlParser.parse('min://error'))) {
       webviews.callAsync(id, 'canGoToOffset', -2, function (err, result) {
@@ -351,7 +359,7 @@ const webviews = {
   }
 }
 
-window.addEventListener('resize', throttle(function () {
+window.addEventListener('resize', throttle(() => {
   if (webviews.placeholderRequests.length > 0) {
     // can't set view bounds if the view is hidden
     return
@@ -408,7 +416,7 @@ webviews.bindEvent('did-navigate', function (tabId, url, httpResponseCode, httpS
 webviews.bindEvent('did-finish-load', onPageLoad)
 
 webviews.bindEvent('page-title-updated', function (tabId, title, explicitSet) {
-  tabs.update(tabId, {
+  tasks.tabs.update(tabId, {
     title: title
   })
 })
@@ -420,9 +428,9 @@ webviews.bindEvent('did-fail-load', function (tabId, errorCode, errorDesc, valid
 })
 
 webviews.bindEvent('crashed', function (tabId, isKilled) {
-  var url = tabs.get(tabId).url
+  var url = tasks.tabs.get(tabId).url
 
-  tabs.update(tabId, {
+  tasks.tabs.update(tabId, {
     url: webviews.internalPages.error + '?ec=crash&url=' + encodeURIComponent(url)
   })
 
@@ -430,19 +438,19 @@ webviews.bindEvent('crashed', function (tabId, isKilled) {
   webviews.destroy(tabId)
   webviews.add(tabId)
 
-  if (tabId === tabs.getSelected()) {
+  if (tabId === tasks.tabs.getSelected()) {
     webviews.setSelected(tabId)
   }
 })
 
 webviews.bindIPC('getSettingsData', function (tabId, args) {
-  if (!urlParser.isInternalURL(tabs.get(tabId).url)) {
+  if (!urlParser.isInternalURL(tasks.tabs.get(tabId).url)) {
     throw new Error()
   }
   webviews.callAsync(tabId, 'send', ['receiveSettingsData', settings.list])
 })
 webviews.bindIPC('setSetting', function (tabId, args) {
-  if (!urlParser.isInternalURL(tabs.get(tabId).url)) {
+  if (!urlParser.isInternalURL(tasks.tabs.get(tabId).url)) {
     throw new Error()
   }
   settings.set(args[0].key, args[0].value)
@@ -463,7 +471,7 @@ settings.listen(function () {
 })
 
 webviews.bindIPC('scroll-position-change', function (tabId, args) {
-  tabs.update(tabId, {
+  tasks.tabs.update(tabId, {
     scrollPosition: args[0]
   })
 })
@@ -489,12 +497,12 @@ ipc.on('view-ipc', function (e, args) {
   })
 })
 
-setInterval(function () {
+setInterval(() => {
   captureCurrentTab()
 }, 15000)
 
 ipc.on('captureData', function (e, data) {
-  tabs.update(data.id, { previewImage: data.url })
+  tasks.tabs.update(data.id, { previewImage: data.url })
   if (data.id === webviews.selectedId && webviews.placeholderRequests.length > 0) {
     placeholderImg.src = data.url
     placeholderImg.hidden = false

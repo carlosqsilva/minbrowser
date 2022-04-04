@@ -1,14 +1,14 @@
-var scriptsToRun = []
+const scriptsToRun = [];
 
 /* a collection of various hacks to unbreak sites, mainly due to missing window.open() support */
 
 /* all sites - re-implements window.close, since the built-in function doesn't work correctly */
 
-window.addEventListener('message', function (e) {
-  if (e.data === 'close-window') {
-    ipc.send('close-window')
+window.addEventListener("message", (e) => {
+  if (e.data === "close-window") {
+    ipc.send("close-window");
   }
-})
+});
 
 if (process.isMainFrame) {
   // window.close() isn't implemented in electron by default
@@ -17,10 +17,15 @@ if (process.isMainFrame) {
   window.close = function () {
     postMessage('close-window', '*')
   }
-`)
+`);
 }
 
-if ((window.location.hostname === 'google.com' || window.location.hostname.endsWith('.google.com')) && window.location.hostname !== 'hangouts.google.com' && window.location.hostname !== 'drive.google.com') {
+if (
+  (window.location.hostname === "google.com" ||
+    window.location.hostname.endsWith(".google.com")) &&
+  window.location.hostname !== "hangouts.google.com" &&
+  window.location.hostname !== "drive.google.com"
+) {
   /* define window.chrome
      this is necessary because some websites (such as the Google Drive file viewer, see issue #378) check for a
      Chrome user agent, and then do things like if(chrome.<module>) {}
@@ -49,12 +54,12 @@ if ((window.location.hostname === 'google.com' || window.location.hostname.endsW
         }
       }
     }
-  `)
+  `);
 }
 
 /* drive.google.com - fixes clicking on files to open them */
 
-if (window.location.hostname === 'drive.google.com') {
+if (window.location.hostname === "drive.google.com") {
   scriptsToRun.push(`
     var realWindowOpen = window.open
 
@@ -80,28 +85,28 @@ if (window.location.hostname === 'drive.google.com') {
         }
       }
     }
-  `)
+  `);
 }
 
 /* news.google.com - fixes clicking on news articles */
 
-if (window.location.hostname === 'news.google.com') {
+if (window.location.hostname === "news.google.com") {
   scriptsToRun.push(`
     window.open = null
-  `)
+  `);
 }
 
 /* calendar.google.com - fixes clicking on URLs in event descriptions */
-if (window.location.hostname === 'calendar.google.com') {
+if (window.location.hostname === "calendar.google.com") {
   scriptsToRun.push(`
     window.open = null
-  `)
+  `);
 }
 
 /* Gmail - required for loading standard version (otherwise redirects to basic HTML) */
 
-if (window.location.hostname === 'mail.google.com') {
-  const chromiumVersion = process.versions.chrome.split('.')[0]
+if (window.location.hostname === "mail.google.com") {
+  const chromiumVersion = process.versions.chrome.split(".")[0];
   scriptsToRun.push(`
     (function() {
       const simulatedUAData = {
@@ -118,11 +123,11 @@ if (window.location.hostname === 'mail.google.com') {
 
       Object.defineProperty(navigator, 'userAgentData', {get: () => simulatedUAData})
     })()
-  `)
+  `);
 }
 
 if (scriptsToRun.length > 0) {
-  setTimeout(function () {
-    electron.webFrame.executeJavaScript(scriptsToRun.join(';'))
-  }, 0)
+  setTimeout(() => {
+    electron.webFrame.executeJavaScript(scriptsToRun.join(";"));
+  }, 0);
 }

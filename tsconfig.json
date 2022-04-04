@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["DOM"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "typeRoots": ["node_modules/@types", "src/@types"]
+  },
+  "include": ["types", "main/**/*", "localization/**/*", "js/**/*"],
+  "exclude": ["node_modules"]
+}

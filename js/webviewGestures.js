@@ -1,4 +1,7 @@
-var webviews = require('webviews.js')
+// @ts-check
+
+const webviews = require('./webviews.js')
+const {tasks} = require("./tabState")
 
 var webviewGestures = {
   showBackArrow: function () {
@@ -81,7 +84,7 @@ function onSwipeGestureLowVelocity () {
   if (horizontalMouseMove - beginningScrollRight > 150 && Math.abs(horizontalMouseMove / verticalMouseMove) > 3) {
     if (beginningScrollRight < 5) {
       resetCounters()
-      webviews.callAsync(tabs.getSelected(), 'goForward')
+      webviews.callAsync(tasks.tabs.getSelected(), 'goForward')
     }
   }
 
@@ -89,7 +92,7 @@ function onSwipeGestureLowVelocity () {
   if (horizontalMouseMove + beginningScrollLeft < -150 && Math.abs(horizontalMouseMove / verticalMouseMove) > 3) {
     if (beginningScrollLeft < 5) {
       resetCounters()
-      webviews.goBackIgnoringRedirects(tabs.getSelected())
+      webviews.goBackIgnoringRedirects(tasks.tabs.getSelected())
     }
   }
 }
@@ -112,7 +115,7 @@ webviews.bindIPC('wheel-event', function (tabId, e) {
   var platformSecondaryKey = ((navigator.platform === 'MacIntel') ? e.ctrlKey : false)
 
   if (beginningScrollLeft === null || beginningScrollRight === null) {
-    webviews.callAsync(tabs.getSelected(), 'executeJavaScript', `
+    webviews.callAsync(tasks.tabs.getSelected(), 'executeJavaScript', `
     (function () {
       var left = 0
       var right = 0
@@ -168,12 +171,12 @@ webviews.bindIPC('wheel-event', function (tabId, e) {
   if (platformZoomKey && initialZoomKeyState) {
     if (verticalMouseMove > 50) {
       verticalMouseMove = -10
-      webviewGestures.zoomWebviewOut(tabs.getSelected())
+      webviewGestures.zoomWebviewOut(tasks.tabs.getSelected())
     }
 
     if (verticalMouseMove < -50) {
       verticalMouseMove = -10
-      webviewGestures.zoomWebviewIn(tabs.getSelected())
+      webviewGestures.zoomWebviewIn(tasks.tabs.getSelected())
     }
   }
 })

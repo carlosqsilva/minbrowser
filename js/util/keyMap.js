@@ -1,4 +1,6 @@
-var defaultKeyMap = {
+// @ts-check
+
+export const defaultKeyMap = {
   quitMin: 'mod+q',
   addTab: 'mod+t',
   addPrivateTab: 'shift+mod+p',
@@ -33,7 +35,7 @@ var defaultKeyMap = {
   showHistory: 'shift+mod+h'
 }
 /* Utility function to override default mapping with user settings */
-function userKeyMap (settings) {
+export function userKeyMap(settings) {
   var keyMapCopy = Object.assign({}, defaultKeyMap)
   if (settings) {
     // override the default keymap by the user defined ones
@@ -46,6 +48,6 @@ function userKeyMap (settings) {
   return keyMapCopy
 }
 
-if (typeof module !== 'undefined') {
-  module.exports = { defaultKeyMap, userKeyMap }
-}
+// if (typeof module !== 'undefined') {
+//   module.exports = { defaultKeyMap, userKeyMap }
+// }

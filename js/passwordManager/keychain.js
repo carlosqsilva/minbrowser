@@ -1,3 +1,5 @@
+// @ts-check
+
 const { ipcRenderer } = require('electron')
 
 class Keychain {

@@ -1,11 +1,16 @@
-var tabEditor = require('navbar/tabEditor.js')
-var settings = require('util/settings/settings.js')
+// @ts-check
 
-var searchbar = require('searchbar/searchbar.js')
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
-var searchbarAutocomplete = require('util/autocomplete.js')
+const tabEditor = require('../navbar/tabEditor.js')
+const settings = require('../util/settings/settings.js')
 
-var searchEngine = require('util/searchEngine.js')
+const searchbar = require('./searchbar.js')
+const searchbarPlugins = require('./searchbarPlugins.js')
+const searchbarAutocomplete = require('../util/autocomplete.js')
+
+const searchEngine = require('../util/searchEngine.js')
+const {l} = require("../../localization")
+const {tasks} = require("../tabState")
+const debounce = require("lodash.debounce")
 
 // format is {phrase, snippet, score, icon, fn, isCustom, isAction} to match https://ac.duckduckgo.com/ac?q=!
 
@@ -40,9 +45,9 @@ function getCustomBang (text) {
 }
 
 // format is {bang: count}
-var bangUseCounts = JSON.parse(localStorage.getItem('bangUseCounts') || '{}')
+const bangUseCounts = JSON.parse(localStorage.getItem('bangUseCounts') || '{}')
 
-var saveBangUseCounts = debounce(function () {
+const saveBangUseCounts = debounce(() => {
   localStorage.setItem('bangUseCounts', JSON.stringify(bangUseCounts))
 }, 10000)
 
@@ -142,7 +147,7 @@ function getBangSearchResults (text, input, event) {
   var resultsPromise
 
   // get results from DuckDuckGo if it is a search engine, and the current tab is not a private tab
-  if (searchEngine.getCurrent().name === 'DuckDuckGo' && !tabs.get(tabs.getSelected()).private) {
+  if (searchEngine.getCurrent().name === 'DuckDuckGo' && !tasks.tabs.get(tasks.tabs.getSelected()).private) {
     resultsPromise = fetch('https://ac.duckduckgo.com/ac/?t=min&q=' + encodeURIComponent(text), {
       cache: 'force-cache'
     })
@@ -202,7 +207,7 @@ function initialize () {
 
       if ((!bang || !bang.isAction) && url.split(' ').length === 1 && !url.endsWith(' ')) {
         // the bang is non-custom or a custom bang that requires search text, so add a space after it
-        tabEditor.show(tabs.getSelected(), url + ' ')
+        tabEditor.show(tasks.tabs.getSelected(), url + ' ')
         return true
       } else if (bang) {
         // there is a custom bang that is an action or has search text, so it can be run

@@ -1,5 +1,8 @@
-var places = require('places/places.js')
-var autocomplete = require('util/autocomplete.js')
+// @ts-check
+
+const places = require('../places/places.js')
+const autocomplete = require('../util/autocomplete.js')
+const {l} = require("../../localization")
 
 const bookmarkEditor = {
   currentInstance: null,

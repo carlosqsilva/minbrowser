@@ -1,5 +1,8 @@
-const remoteMenu = require('remoteMenuRenderer.js')
-const searchbar = require('searchbar/searchbar.js')
+// @ts-check
+
+const remoteMenu = require('./remoteMenuRenderer.js')
+const searchbar = require('./searchbar/searchbar.js')
+const {l} = require("../localization")
 
 module.exports = {
   initialize: function () {

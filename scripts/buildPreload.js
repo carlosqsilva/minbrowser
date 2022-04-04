@@ -1,26 +1,29 @@
+const esbuild = require("esbuild")
 const path = require('path')
-const fs = require('fs')
 
 const outFile = path.resolve(__dirname, '../dist/preload.js')
 
-const modules = [
-  'js/preload/default.js',
-  'js/preload/textExtractor.js',
-  'js/preload/readerDetector.js',
-  'js/preload/siteUnbreak.js',
-  'js/util/settings/settingsPreload.js',
-  'js/preload/passwordFill.js',
-  'js/preload/translate.js',
-]
-
-function buildPreload() {
-  /* concatenate modules */
-  let output = ''
-  modules.forEach(function (script) {
-    output += fs.readFileSync(path.resolve(__dirname, '../', script)) + ';\n'
+async function buildPreload() {
+  const result = await esbuild.build({
+    bundle: true,
+    minify: false,
+    keepNames: true,
+    metafile: true,
+    target: "esnext",
+    platform: "browser",
+    format: "cjs",
+    external: ["electron"],
+    entryPoints: ['./js/preload/index.js'],
+    outfile: outFile
   })
 
-  fs.writeFileSync(outFile, output, 'utf-8')
+  const output = result?.metafile?.outputs || {};
+
+  Object.keys(output).forEach((fileName) => {
+    // convert to kilobyte
+    const fileSize = output[fileName].bytes / 1000;
+    console.log(`${fileName} => ${fileSize} Kb`);
+  });
 }
 
 if (module.parent) {

@@ -1,3 +1,8 @@
+// @ts-check
+
+const debounce = require("lodash.debounce")
+const throttle = require("lodash.throttle")
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = '../../node_modules/pdfjs-dist/build/pdf.worker.js'
 
 var url = new URLSearchParams(window.location.search.replace('?', '')).get('url')
@@ -5,7 +10,7 @@ var url = new URLSearchParams(window.location.search.replace('?', '')).get('url'
 var eventBus = new pdfjsViewer.EventBus()
 
 /* page counter UI */
-var pageCounter = {
+const pageCounter = {
   init: function () {
     pageCounter.container = document.getElementById('page-counter')
     pageCounter.input = pageCounter.container.getElementsByTagName('input')[0]
@@ -123,7 +128,7 @@ function updateGutterWidths () {
     gutterWidth = Math.round(Math.max(64, (window.innerWidth - pageViews[0].viewport.width) / 2)) - 2
   }
 
-  document.querySelectorAll('.side-gutter').forEach(function (el) {
+  document.querySelectorAll('.side-gutter').forEach((el) => {
     el.style.width = gutterWidth + 'px'
   })
 }
@@ -478,43 +483,6 @@ window.addEventListener('resize', debounce(function () {
     console.log('redraw triggered')
   }
 }, 750))
-
-// https://remysharp.com/2010/07/21/throttling-function-calls
-
-function debounce (fn, delay) {
-  var timer = null
-  return function () {
-    var context = this
-    var args = arguments
-    clearTimeout(timer)
-    timer = setTimeout(function () {
-      fn.apply(context, args)
-    }, delay)
-  }
-}
-
-function throttle (fn, threshhold, scope) {
-  threshhold || (threshhold = 250)
-  var last,
-    deferTimer
-  return function () {
-    var context = scope || this
-
-    var now = +new Date()
-    var args = arguments
-    if (last && now < last + threshhold) {
-      // hold on to it
-      clearTimeout(deferTimer)
-      deferTimer = setTimeout(function () {
-        last = now
-        fn.apply(context, args)
-      }, threshhold)
-    } else {
-      last = now
-      fn.apply(context, args)
-    }
-  }
-}
 
 function downloadPDF () {
   function startDownload (title) {

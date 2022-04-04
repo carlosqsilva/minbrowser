@@ -1,13 +1,16 @@
+// @ts-check
+
 /* fades out tabs that are inactive */
 
-var tabBar = require('navbar/tabBar.js')
+const tabBar = require('../navbar/tabBar.js')
+const { tasks }  = require("../tabState")
 
-var tabActivity = {
+const tabActivity = {
   minFadeAge: 330000,
   refresh: function () {
     requestAnimationFrame(function () {
-      var tabSet = tabs.get()
-      var selected = tabs.getSelected()
+      var tabSet = tasks.tabs.get()
+      var selected = tasks.tabs.getSelected()
       var time = Date.now()
 
       tabSet.forEach(function (tab) {

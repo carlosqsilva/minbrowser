@@ -1,7 +1,11 @@
+// @ts-check
+
 /*
 Passes a context menu template to the main process (where the menu is created)
 and listens for click events on it.
 */
+
+const {ipcRenderer: ipc} = require("electron")
 
 var menuCallbacks = {}
 

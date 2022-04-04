@@ -1,9 +1,15 @@
+// @ts-check
+
 // defines schema for the browsingData database
 // requires Dexie.min.js
+const { Dexie } = require("dexie")
+const { ipcRenderer: ipc } = require("electron")
 
-if (typeof Dexie === 'undefined' && typeof require !== 'undefined') {
-  var Dexie = require('dexie')
-}
+const { l } = require("../../localization")
+
+// if (typeof Dexie === 'undefined' && typeof require !== 'undefined') {
+//   var Dexie = require('dexie')
+// }
 
 var dbErrorMessage = 'Internal error opening backing store for indexedDB.open'
 var dbErrorAlertShown = false

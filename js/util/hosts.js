@@ -1,8 +1,10 @@
-var hosts = []
+// @ts-check
 
-var HOSTS_FILE = process.platform === 'win32'
-  ? 'C:/Windows/System32/drivers/etc/hosts'
-  : '/etc/hosts'
+const fs = require("fs")
+
+let hosts = []
+
+let HOSTS_FILE = '/etc/hosts'
 
 function truncatedHostsFileLines (data, limit) {
   return data.length > limit

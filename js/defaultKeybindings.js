@@ -1,10 +1,14 @@
-const keybindings = require('keybindings.js')
-var webviews = require('webviews.js')
-var webviewGestures = require('webviewGestures.js')
-var browserUI = require('browserUI.js')
-var focusMode = require('focusMode.js')
-var modalMode = require('modalMode.js')
-var tabEditor = require('navbar/tabEditor.js')
+// @ts-check
+
+const {ipcRenderer: ipc} = require("electron")
+
+const {tasks} = require("./tabState")
+const keybindings = require('./keybindings.js')
+const webviews = require('./webviews.js')
+const browserUI = require('./browserUI.js')
+const focusMode = require('./focusMode.js')
+const modalMode = require('./modalMode.js')
+const tabEditor = require('./navbar/tabEditor.js')
 
 const defaultKeybindings = {
   initialize: function () {
@@ -39,7 +43,7 @@ const defaultKeybindings = {
         return
       }
 
-      browserUI.addTab(tabs.add({
+      browserUI.addTab(tasks.tabs.add({
         private: true
       }))
     })
@@ -54,32 +58,32 @@ const defaultKeybindings = {
         return
       }
 
-      const sourceTab = tabs.get(tabs.getSelected())
+      const sourceTab = tasks.tabs.get(tasks.tabs.getSelected())
       // strip tab id so that a new one is generated
-      const newTab = tabs.add({ ...sourceTab, id: undefined })
+      const newTab = tasks.tabs.add({ ...sourceTab, id: undefined })
 
       browserUI.addTab(newTab, { enterEditMode: false })
     })
 
     keybindings.defineShortcut('enterEditMode', function (e) {
-      tabEditor.show(tabs.getSelected())
+      tabEditor.show(tasks.tabs.getSelected())
       return false
     })
 
     keybindings.defineShortcut('runShortcut', function (e) {
-      tabEditor.show(tabs.getSelected(), '!')
+      tabEditor.show(tasks.tabs.getSelected(), '!')
     })
 
     keybindings.defineShortcut('closeTab', function (e) {
-      browserUI.closeTab(tabs.getSelected())
+      browserUI.closeTab(tasks.tabs.getSelected())
     })
 
     keybindings.defineShortcut('moveTabLeft', function (e) {
-      browserUI.moveTabLeft(tabs.getSelected())
+      browserUI.moveTabLeft(tasks.tabs.getSelected())
     })
 
     keybindings.defineShortcut('moveTabRight', function (e) {
-      browserUI.moveTabRight(tabs.getSelected())
+      browserUI.moveTabRight(tasks.tabs.getSelected())
     })
 
     keybindings.defineShortcut('restoreTab', function (e) {
@@ -95,18 +99,18 @@ const defaultKeybindings = {
         return
       }
 
-      browserUI.addTab(tabs.add(restoredTab), {
+      browserUI.addTab(tasks.tabs.add(restoredTab), {
         enterEditMode: false
       })
     })
 
     keybindings.defineShortcut('addToFavorites', function (e) {
-      tabEditor.show(tabs.getSelected(), null, false) // we need to show the bookmarks button, which is only visible in edit mode
+      tabEditor.show(tasks.tabs.getSelected(), null, false) // we need to show the bookmarks button, which is only visible in edit mode
       tabEditor.container.querySelector('.bookmarks-button').click()
     })
 
     keybindings.defineShortcut('showBookmarks', function () {
-      tabEditor.show(tabs.getSelected(), '!bookmarks ')
+      tabEditor.show(tasks.tabs.getSelected(), '!bookmarks ')
     })
 
     // cmd+x should switch to tab x. Cmd+9 should switch to the last tab
@@ -114,16 +118,16 @@ const defaultKeybindings = {
     for (var i = 1; i < 9; i++) {
       (function (i) {
         keybindings.defineShortcut({ keys: 'mod+' + i }, function (e) {
-          var currentIndex = tabs.getIndex(tabs.getSelected())
-          var newTab = tabs.getAtIndex(currentIndex + i) || tabs.getAtIndex(currentIndex - i)
+          var currentIndex = tasks.tabs.getIndex(tasks.tabs.getSelected())
+          var newTab = tasks.tabs.getAtIndex(currentIndex + i) || tasks.tabs.getAtIndex(currentIndex - i)
           if (newTab) {
             browserUI.switchToTab(newTab.id)
           }
         })
 
         keybindings.defineShortcut({ keys: 'shift+mod+' + i }, function (e) {
-          var currentIndex = tabs.getIndex(tabs.getSelected())
-          var newTab = tabs.getAtIndex(currentIndex - i) || tabs.getAtIndex(currentIndex + i)
+          var currentIndex = tasks.tabs.getIndex(tasks.tabs.getSelected())
+          var newTab = tasks.tabs.getAtIndex(currentIndex - i) || tasks.tabs.getAtIndex(currentIndex + i)
           if (newTab) {
             browserUI.switchToTab(newTab.id)
           }
@@ -132,16 +136,16 @@ const defaultKeybindings = {
     }
 
     keybindings.defineShortcut('gotoLastTab', function (e) {
-      browserUI.switchToTab(tabs.getAtIndex(tabs.count() - 1).id)
+      browserUI.switchToTab(tasks.tabs.getAtIndex(tasks.tabs.count() - 1).id)
     })
 
     keybindings.defineShortcut('gotoFirstTab', function (e) {
-      browserUI.switchToTab(tabs.getAtIndex(0).id)
+      browserUI.switchToTab(tasks.tabs.getAtIndex(0).id)
     })
 
     keybindings.defineShortcut({ keys: 'esc' }, function (e) {
       if (webviews.placeholderRequests.length === 0 && document.activeElement.tagName !== 'INPUT') {
-        webviews.callAsync(tabs.getSelected(), 'stop')
+        webviews.callAsync(tasks.tabs.getSelected(), 'stop')
       }
 
       tabEditor.hide()
@@ -152,38 +156,38 @@ const defaultKeybindings = {
       }
 
       // exit full screen mode
-      webviews.callAsync(tabs.getSelected(), 'executeJavaScript', 'if(document.webkitIsFullScreen){document.webkitExitFullscreen()}')
+      webviews.callAsync(tasks.tabs.getSelected(), 'executeJavaScript', 'if(document.webkitIsFullScreen){document.webkitExitFullscreen()}')
 
-      webviews.callAsync(tabs.getSelected(), 'focus')
+      webviews.callAsync(tasks.tabs.getSelected(), 'focus')
     })
 
     keybindings.defineShortcut('goBack', function (d) {
-      webviews.callAsync(tabs.getSelected(), 'goBack')
+      webviews.callAsync(tasks.tabs.getSelected(), 'goBack')
     })
 
     keybindings.defineShortcut('goForward', function (d) {
-      webviews.callAsync(tabs.getSelected(), 'goForward')
+      webviews.callAsync(tasks.tabs.getSelected(), 'goForward')
     })
 
     keybindings.defineShortcut('switchToPreviousTab', function (d) {
-      var currentIndex = tabs.getIndex(tabs.getSelected())
-      var previousTab = tabs.getAtIndex(currentIndex - 1)
+      var currentIndex = tasks.tabs.getIndex(tasks.tabs.getSelected())
+      var previousTab = tasks.tabs.getAtIndex(currentIndex - 1)
 
       if (previousTab) {
         browserUI.switchToTab(previousTab.id)
       } else {
-        browserUI.switchToTab(tabs.getAtIndex(tabs.count() - 1).id)
+        browserUI.switchToTab(tasks.tabs.getAtIndex(tasks.tabs.count() - 1).id)
       }
     })
 
     keybindings.defineShortcut('switchToNextTab', function (d) {
-      var currentIndex = tabs.getIndex(tabs.getSelected())
-      var nextTab = tabs.getAtIndex(currentIndex + 1)
+      var currentIndex = tasks.tabs.getIndex(tasks.tabs.getSelected())
+      var nextTab = tasks.tabs.getAtIndex(currentIndex + 1)
 
       if (nextTab) {
         browserUI.switchToTab(nextTab.id)
       } else {
-        browserUI.switchToTab(tabs.getAtIndex(0).id)
+        browserUI.switchToTab(tasks.tabs.getAtIndex(0).id)
       }
     })
 
@@ -193,7 +197,7 @@ const defaultKeybindings = {
         return
       }
 
-      const taskSwitchList = tasks.filter(t => !tasks.isCollapsed(t.id))
+      const taskSwitchList = tasks.tasks.filter(t => !tasks.isCollapsed(t.id))
 
       const currentTaskIdx = taskSwitchList.findIndex(t => t.id === tasks.getSelected().id)
 
@@ -207,7 +211,7 @@ const defaultKeybindings = {
         return
       }
 
-      const taskSwitchList = tasks.filter(t => !tasks.isCollapsed(t.id))
+      const taskSwitchList = tasks.tasks.filter(t => !tasks.isCollapsed(t.id))
 
       const currentTaskIdx = taskSwitchList.findIndex(t => t.id === tasks.getSelected().id)
       taskCount = taskSwitchList.length
@@ -240,7 +244,7 @@ const defaultKeybindings = {
         return
       }
 
-      var tset = tabs.get()
+      var tset = tasks.tabs.get()
       for (var i = 0; i < tset.length; i++) {
         browserUI.destroyTab(tset[i].id)
       }
@@ -257,23 +261,23 @@ const defaultKeybindings = {
       if (time - lastReload < 500) {
         ipc.send('destroyAllViews')
         ipc.invoke('reloadWindow')
-      } else if (tabs.get(tabs.getSelected()).url.startsWith(webviews.internalPages.error)) {
+      } else if (tasks.tabs.get(tasks.tabs.getSelected()).url.startsWith(webviews.internalPages.error)) {
         // reload the original page rather than show the error page again
-        webviews.update(tabs.getSelected(), new URL(tabs.get(tabs.getSelected()).url).searchParams.get('url'))
+        webviews.update(tasks.tabs.getSelected(), new URL(tasks.tabs.get(tasks.tabs.getSelected()).url).searchParams.get('url'))
       } else {
         // this can't be an error page, use the normal reload method
-        webviews.callAsync(tabs.getSelected(), 'reload')
+        webviews.callAsync(tasks.tabs.getSelected(), 'reload')
       }
 
       lastReload = time
     })
 
     keybindings.defineShortcut('reloadIgnoringCache', function () {
-      webviews.callAsync(tabs.getSelected(), 'reloadIgnoringCache')
+      webviews.callAsync(tasks.tabs.getSelected(), 'reloadIgnoringCache')
     })
 
     keybindings.defineShortcut('showHistory', function () {
-      tabEditor.show(tabs.getSelected(), '!history ')
+      tabEditor.show(tasks.tabs.getSelected(), '!history ')
     })
   }
 }

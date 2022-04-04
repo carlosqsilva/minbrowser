@@ -1,8 +1,10 @@
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
-var searchbarUtils = require('searchbar/searchbarUtils.js')
-var urlParser = require('util/urlParser.js')
+// @ts-check
 
-var places = require('places/places.js')
+var searchbarPlugins = require('./searchbarPlugins.js')
+var searchbarUtils = require('./searchbarUtils.js')
+var urlParser = require('../util/urlParser.js')
+
+var places = require('../places/places.js')
 
 function showPlaceSuggestions (text, input, event) {
   // use the current tab's url for history suggestions, or the previous tab if the current tab is empty

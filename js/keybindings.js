@@ -1,3 +1,5 @@
+// @ts-check
+
 /*
 There are three possible ways that keybindings can be handled.
  Shortcuts that appear in the menubar are registered in main.js, and send IPC messages to the window (which are handled by menuRenderer.js)
@@ -6,16 +8,19 @@ There are three possible ways that keybindings can be handled.
   */
 
 const Mousetrap = require('mousetrap')
-const keyMapModule = require('util/keyMap.js')
+const keyMapModule = require('./util/keyMap.js')
 
-var webviews = require('webviews.js')
-var modalMode = require('modalMode.js')
-var settings = require('util/settings/settings.js')
+const webviews = require('./webviews.js')
+const modalMode = require('./modalMode.js')
+const settings = require('./util/settings/settings.js')
 
-var keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
+const {tasks} = require("./tabState")
+const {platformType} = require("./util/utils")
 
-var shortcutsList = []
-var registeredMousetrapBindings = {}
+const keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
+
+const shortcutsList = []
+const registeredMousetrapBindings = {}
 
 /*
 Determines whether a shortcut can actually run
@@ -23,8 +28,8 @@ single-letter shortcuts and shortcuts used for text editing can't run when an in
 */
 function checkShortcutCanRun (combo, cb) {
   if (/^(shift)?\+?\w$/.test(combo) || combo === 'mod+left' || combo === 'mod+right') {
-    webviews.callAsync(tabs.getSelected(), 'isFocused', function (err, isFocused) {
-      if (err || !tabs.get(tabs.getSelected()).url || !isFocused) {
+    webviews.callAsync(tasks.tabs.getSelected(), 'isFocused', function (err, isFocused) {
+      if (err || !tasks.tabs.get(tasks.tabs.getSelected()).url || !isFocused) {
       // check whether an input is focused in the browser UI
         if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
           cb(false)
@@ -33,7 +38,7 @@ function checkShortcutCanRun (combo, cb) {
         }
       } else {
       // check whether an input is focused in the webview
-        webviews.callAsync(tabs.getSelected(), 'executeJavaScript', `
+        webviews.callAsync(tasks.tabs.getSelected(), 'executeJavaScript', `
           document.activeElement.tagName === "INPUT"
           || document.activeElement.tagName === "TEXTAREA"
           || document.activeElement.tagName === "IFRAME"
@@ -143,8 +148,8 @@ function initialize () {
         (key === 'option' && (input.alt || input.key === 'Alt')) ||
         (key === 'shift' && (input.shift || input.key === 'Shift')) ||
         (key === 'ctrl' && (input.control || input.key === 'Control')) ||
-        (key === 'mod' && window.platformType === 'mac' && (input.meta || input.key === 'Meta')) ||
-        (key === 'mod' && window.platformType !== 'mac' && (input.control || input.key === 'Control'))
+        (key === 'mod' && platformType === 'darwin' && (input.meta || input.key === 'Meta')) ||
+        (key === 'mod' && platformType !== 'darwin' && (input.control || input.key === 'Control'))
         )
         ) {
           matches = false

@@ -1,10 +1,14 @@
+// @ts-check
+
 const punycode = require('punycode')
 const path = require('path')
 
-const searchEngine = require('util/searchEngine.js')
+const searchEngine = require('./searchEngine.js')
 const hosts = require('./hosts.js')
 const httpsTopSites = require('../../ext/httpsUpgrade/httpsTopSites.json')
 const publicSuffixes = require('../../ext/publicSuffixes/public_suffix_list.json')
+
+const {platformType} = require("./utils")
 
 function removeWWW (domain) {
   return (domain.startsWith('www.') ? domain.slice(4) : domain)
@@ -135,7 +139,7 @@ var urlParser = {
     return url
   },
   getFileURL: function (path) {
-    if (window.platformType === 'windows') {
+    if (platformType === 'win32') {
       // convert backslash to forward slash
       path = path.replace(/\\/g, '/')
       // https://blogs.msdn.microsoft.com/ie/2006/12/06/file-uris-in-windows/

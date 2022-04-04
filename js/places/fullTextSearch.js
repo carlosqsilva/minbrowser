@@ -1,3 +1,5 @@
+// @ts-check
+
 /* global db Dexie */
 
 const stemmer = require('stemmer')

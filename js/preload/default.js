@@ -1,56 +1,68 @@
 /* imports common modules */
 
-var electron = require('electron')
-var ipc = electron.ipcRenderer
+import { ipcRenderer as ipc } from "electron"
 
-var propertiesToClone = ['deltaX', 'deltaY', 'metaKey', 'ctrlKey', 'defaultPrevented', 'clientX', 'clientY']
+const propertiesToClone = [
+  "deltaX",
+  "deltaY",
+  "metaKey",
+  "ctrlKey",
+  "defaultPrevented",
+  "clientX",
+  "clientY",
+];
 
-function cloneEvent (e) {
-  var obj = {}
-
-  for (var i = 0; i < propertiesToClone.length; i++) {
-    obj[propertiesToClone[i]] = e[propertiesToClone[i]]
+function cloneEvent(e) {
+  const obj = {};
+  for (const prop of propertiesToClone) {
+    obj[prop] = e[prop];
   }
-  return JSON.stringify(obj)
+  return JSON.stringify(obj);
 }
 
 // workaround for Electron bug
-setTimeout(function () {
+setTimeout(() => {
   /* Used for swipe gestures */
-  window.addEventListener('wheel', function (e) {
-    ipc.send('wheel-event', cloneEvent(e))
-  })
+  window.addEventListener("wheel", (e) => {
+    ipc.send("wheel-event", cloneEvent(e));
+  });
 
-  var scrollTimeout = null
+  let scrollTimeout = null;
 
-  window.addEventListener('scroll', function () {
-    clearTimeout(scrollTimeout)
-    scrollTimeout = setTimeout(function () {
-      ipc.send('scroll-position-change', Math.round(window.scrollY))
-    }, 200)
-  })
-}, 0)
+  window.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        ipc.send("scroll-position-change", Math.round(window.scrollY));
+      }, 200);
+    },
+    { passive: true }
+  );
+}, 0);
 
 /* Used for picture in picture item in context menu */
-ipc.on('getContextMenuData', function (event, data) {
+ipc.on("getContextMenuData", (e, data) => {
   // check for video element to show picture-in-picture menu
-  var hasVideo = Array.from(document.elementsFromPoint(data.x, data.y)).some(el => el.tagName === 'VIDEO')
-  ipc.send('contextMenuData', { hasVideo })
-})
+  const hasVideo = Array.from(document.elementsFromPoint(data.x, data.y)).some(
+    (el) => el.tagName === "VIDEO"
+  );
+  ipc.send("contextMenuData", { hasVideo });
+});
 
-ipc.on('enterPictureInPicture', function (event, data) {
-  var videos = Array.from(document.elementsFromPoint(data.x, data.y)).filter(el => el.tagName === 'VIDEO')
-  if (videos[0]) {
-    videos[0].requestPictureInPicture()
-  }
-})
+ipc.on("enterPictureInPicture", (e, data) => {
+  const [video] = Array.from(document.elementsFromPoint(data.x, data.y)).filter(
+    (el) => el.tagName === "VIDEO"
+  );
+  if (video) video.requestPictureInPicture();
+});
 
-window.addEventListener('message', function (e) {
-  if (!e.origin.startsWith('file://')) {
-    return
+window.addEventListener("message", (e) => {
+  if (!e.origin.startsWith("file://")) {
+    return;
   }
 
-  if (e.data && e.data.message && e.data.message === 'showCredentialList') {
-    ipc.send('showCredentialList')
+  if (e.data && e.data.message && e.data.message === "showCredentialList") {
+    ipc.send("showCredentialList");
   }
-})
+});

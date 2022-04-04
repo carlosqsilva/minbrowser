@@ -1,3 +1,5 @@
+// @ts-check
+
 let isModalMode = false
 
 const overlay = document.getElementById('overlay')

@@ -1,3 +1,8 @@
+// @ts-check
+
+const fs = require("fs")
+const {ipcRenderer: ipc} = require("electron")
+
 var settings = {
   filePath: window.globalArgs['user-data-path'] + (process.platform === 'win32' ? '\\' : '/') + 'settings.json',
   list: {},

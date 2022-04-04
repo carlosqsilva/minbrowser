@@ -1,17 +1,23 @@
+// @ts-check
+
 const EventEmitter = require('events')
-
-const webviews = require('webviews.js')
-const focusMode = require('focusMode.js')
-const readerView = require('readerView.js')
-const tabAudio = require('tabAudio.js')
 const dragula = require('dragula')
-const settings = require('util/settings/settings.js')
-const urlParser = require('util/urlParser.js')
-const keybindings = require('keybindings.js')
 
-const tabEditor = require('navbar/tabEditor.js')
-const progressBar = require('navbar/progressBar.js')
-const permissionRequests = require('navbar/permissionRequests.js')
+const webviews = require('../webviews.js')
+const focusMode = require('../focusMode.js')
+const readerView = require('../readerView.js')
+const tabAudio = require('../tabAudio.js')
+const settings = require('../util/settings/settings.js')
+const urlParser = require('../util/urlParser.js')
+const keybindings = require('../keybindings.js')
+
+const tabEditor = require('./tabEditor.js')
+const progressBar = require('./progressBar.js')
+const permissionRequests = require('./permissionRequests.js')
+
+const {tasks} = require("../tabState")
+const {empty, platformType} = require("../util/utils")
+const {l} = require("../../localization")
 
 var lastTabDeletion = 0 // TODO get rid of this
 
@@ -92,7 +98,7 @@ const tabBar = {
 
     // click to enter edit mode or switch to a tab
     tabEl.addEventListener('click', function (e) {
-      if (tabs.getSelected() !== data.id) { // else switch to tab if it isn't focused
+      if (tasks.tabs.getSelected() !== data.id) { // else switch to tab if it isn't focused
         tabBar.events.emit('tab-selected', data.id)
       } else { // the tab is focused, edit tab instead
         tabEditor.show(data.id)
@@ -132,7 +138,7 @@ const tabBar = {
     return tabEl
   },
   updateTab: function (tabId, tabEl = tabBar.getTab(tabId)) {
-    var tabData = tabs.get(tabId)
+    var tabData = tasks.tabs.get(tabId)
 
     // update tab title
     var tabTitle
@@ -177,19 +183,19 @@ const tabBar = {
     empty(tabBar.containerInner)
     tabBar.tabElementMap = {}
 
-    tabs.get().forEach(function (tab) {
+    tasks.tabs.get().forEach(function (tab) {
       var el = tabBar.createTab(tab)
       tabBar.containerInner.appendChild(el)
       tabBar.tabElementMap[tab.id] = el
     })
 
-    if (tabs.getSelected()) {
-      tabBar.setActiveTab(tabs.getSelected())
+    if (tasks.tabs.getSelected()) {
+      tabBar.setActiveTab(tasks.tabs.getSelected())
     }
   },
   addTab: function (tabId) {
-    var tab = tabs.get(tabId)
-    var index = tabs.getIndex(tabId)
+    var tab = tasks.tabs.get(tabId)
+    var index = tasks.tabs.getIndex(tabId)
 
     var tabEl = tabBar.createTab(tab)
     tabBar.containerInner.insertBefore(tabEl, tabBar.containerInner.childNodes[index])
@@ -223,17 +229,17 @@ const tabBar = {
         var adjacentTabId = sibling.getAttribute('data-tab')
       }
 
-      var oldTab = tabs.splice(tabs.getIndex(tabId), 1)[0]
+      var oldTab = tasks.tabs.splice(tasks.tabs.getIndex(tabId), 1)[0]
 
       var newIdx
       if (adjacentTabId) {
-        newIdx = tabs.getIndex(adjacentTabId)
+        newIdx = tasks.tabs.getIndex(adjacentTabId)
       } else {
         // tab was inserted at end
-        newIdx = tabs.count()
+        newIdx = tasks.tabs.count()
       }
 
-      tabs.splice(newIdx, 0, oldTab)
+      tasks.tabs.splice(newIdx, 0, oldTab)
     })
   },
   enableTabDragging: function () {
@@ -251,12 +257,12 @@ settings.listen('showDividerBetweenTabs', function (dividerPreference) {
 /* tab loading and progress bar status */
 webviews.bindEvent('did-start-loading', function (tabId) {
   progressBar.update(tabBar.getTab(tabId).querySelector('.progress-bar'), 'start')
-  tabs.update(tabId, { loaded: false })
+  tasks.tabs.update(tabId, { loaded: false })
 })
 
 webviews.bindEvent('did-stop-loading', function (tabId) {
   progressBar.update(tabBar.getTab(tabId).querySelector('.progress-bar'), 'finish')
-  tabs.update(tabId, { loaded: true })
+  tasks.tabs.update(tabId, { loaded: true })
   tabBar.updateTab(tabId)
 })
 
@@ -277,7 +283,7 @@ tabBar.initializeTabDragging()
 On macOS, dragging the tab bar moves the window, and cmd+drag moves tabs
 On all other platforms, the window drag area is a separate region, so tabs are draggable always
 */
-if (window.platformType === 'mac') {
+if (platformType === 'darwin') {
   keybindings.defineShortcut({ keys: 'mod' }, function () {
     tabBar.enableTabDragging()
     document.body.classList.add('disable-window-drag')
@@ -296,9 +302,9 @@ tabBar.container.addEventListener('dragover', e => e.preventDefault())
 tabBar.container.addEventListener('drop', e => {
   e.preventDefault()
   var data = e.dataTransfer
-  require('browserUI.js').addTab(tabs.add({
+  require('../browserUI.js').addTab(tasks.tabs.add({
     url: data.files[0] ? 'file://' + data.files[0].path : data.getData('text'),
-    private: tabs.get(tabs.getSelected()).private
+    private: tasks.tabs.get(tasks.tabs.getSelected()).private
   }), { enterEditMode: false, openInBackground: !settings.get('openTabsInForeground') })
 })
 

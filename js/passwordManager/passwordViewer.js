@@ -1,7 +1,11 @@
-const webviews = require('webviews.js')
-const settings = require('util/settings/settings.js')
-const PasswordManagers = require('passwordManager/passwordManager.js')
-const modalMode = require('modalMode.js')
+// @ts-check
+
+const webviews = require('../webviews.js')
+const settings = require('../util/settings/settings.js')
+const PasswordManagers = require('./passwordManager.js')
+const modalMode = require('../modalMode.js')
+const {empty} = require("../util/utils")
+const {l} = require("../../localization")
 
 const passwordViewer = {
   container: document.getElementById('password-viewer'),

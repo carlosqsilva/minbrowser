@@ -1,17 +1,18 @@
+// @ts-check
 /* list of the available custom !bangs */
 
 const { ipcRenderer } = require('electron')
 const fs = require('fs')
 
-var bangsPlugin = require('searchbar/bangsPlugin.js')
+var bangsPlugin = require('./bangsPlugin.js')
 
-var webviews = require('webviews.js')
-var browserUI = require('browserUI.js')
-var focusMode = require('focusMode.js')
-var places = require('places/places.js')
-var contentBlockingToggle = require('navbar/contentBlockingToggle.js')
-var taskOverlay = require('taskOverlay/taskOverlay.js')
-var bookmarkConverter = require('bookmarkConverter.js')
+var webviews = require('../webviews.js')
+var browserUI = require('../browserUI.js')
+var focusMode = require('../focusMode.js')
+var places = require('../places/places.js')
+var contentBlockingToggle = require('../navbar/contentBlockingToggle.js')
+var taskOverlay = require('../taskOverlay/taskOverlay.js')
+var bookmarkConverter = require('../bookmarkConverter.js')
 
 function initialize () {
   bangsPlugin.registerCustomBang({

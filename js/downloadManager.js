@@ -1,7 +1,12 @@
-var webviews = require('webviews.js')
-const remoteMenu = require('remoteMenuRenderer.js')
+// @ts-check
 
-function getFileSizeString (bytes) {
+const {ipcRenderer: ipc, shell} = require("electron")
+
+const webviews = require('./webviews.js')
+const remoteMenu = require('./remoteMenuRenderer.js')
+const { l } = require("../localization")
+
+function getFileSizeString(bytes) {
   const prefixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
   let size = bytes
@@ -58,11 +63,11 @@ const downloadManager = {
     }
   },
   openFolder: function (path) {
-    electron.shell.showItemInFolder(path)
+    shell.showItemInFolder(path)
   },
   onItemClicked: function (path) {
     if (downloadManager.downloadItems[path].status === 'completed') {
-      electron.shell.openPath(path)
+      shell.openPath(path)
       // provide a bit of time for the file to open before the download bar disappears
       setTimeout(function () {
         downloadManager.removeItem(path)

@@ -1,11 +1,14 @@
-var webviews = require('webviews.js')
-var settings = require('util/settings/settings.js')
+// @ts-check
+
+const webviews = require('../webviews.js')
+const settings = require('../util/settings/settings.js')
+const { tasks }  = require("../tabState")
 
 const colorExtractorImage = document.createElement('img')
 const colorExtractorCanvas = document.createElement('canvas')
 const colorExtractorContext = colorExtractorCanvas.getContext('2d')
 
-const textColorNN = require('ext/textColor/textColor.js')
+const textColorNN = require('../../ext/textColor/textColor.js')
 
 const defaultColors = {
   private: ['rgb(58, 44, 99)', 'white'],
@@ -13,7 +16,7 @@ const defaultColors = {
   darkMode: ['rgb(40, 44, 52)', 'white']
 }
 
-function getHours () {
+function getHours() {
   const date = new Date()
   return date.getHours() + (date.getMinutes() / 60)
 }
@@ -25,7 +28,7 @@ setInterval(function () {
   hours = getHours()
 }, 5 * 60 * 1000)
 
-function getColorFromImage (image) {
+function getColorFromImage(image) {
   const w = colorExtractorImage.width
   const h = colorExtractorImage.height
   colorExtractorCanvas.width = w
@@ -90,7 +93,7 @@ function getColorFromImage (image) {
   return res
 }
 
-function getColorFromString (str) {
+function getColorFromString(str) {
   colorExtractorContext.clearRect(0, 0, 1, 1)
   colorExtractorContext.fillStyle = str
   colorExtractorContext.fillRect(0, 0, 1, 1)
@@ -99,11 +102,11 @@ function getColorFromString (str) {
   return rgb
 }
 
-function getRGBString (c) {
-  return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'
+function getRGBString(c) {
+  return `rgb(${c[0]},${c[1]},${c[2]})`
 }
 
-function getTextColor (bgColor) {
+function getTextColor(bgColor) {
   const obj = {
     r: bgColor[0] / 255,
     g: bgColor[1] / 255,
@@ -116,13 +119,13 @@ function getTextColor (bgColor) {
   return 'white'
 }
 
-function isLowContrast (color) {
+function isLowContrast(color) {
   // is this a color that won't change very much when lightened or darkened?
   // TODO is lowContrast the best name for this?
   return color.filter(i => (i > 235 || i < 15)).length === 3
 }
 
-function adjustColorForTheme (color) {
+function adjustColorForTheme(color) {
   // dim the colors late at night or early in the morning if automatic dark mode is enabled
   const darkMode = settings.get('darkMode')
   const isAuto = (darkMode === undefined || darkMode === true || darkMode >= 0)
@@ -148,11 +151,11 @@ function adjustColorForTheme (color) {
 }
 
 // https://stackoverflow.com/a/596243
-function getLuminance (c) {
+function getLuminance(c) {
   return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
 }
 
-function setColor (bg, fg, isLowContrast) {
+function setColor(bg, fg, isLowContrast) {
   const backgroundElements = document.getElementsByClassName('theme-background-color')
   const textElements = document.getElementsByClassName('theme-text-color')
 
@@ -181,15 +184,15 @@ const tabColor = {
   initialize: function () {
     webviews.bindEvent('page-favicon-updated', function (tabId, favicons) {
       tabColor.updateFromImage(favicons, tabId, function () {
-        if (tabId === tabs.getSelected()) {
+        if (tabId === tasks.tabs.getSelected()) {
           tabColor.updateColors()
         }
       })
     })
-
+    
     webviews.bindEvent('did-change-theme-color', function (tabId, color) {
       tabColor.updateFromThemeColor(color, tabId)
-      if (tabId === tabs.getSelected()) {
+      if (tabId === tasks.tabs.getSelected()) {
         tabColor.updateColors()
       }
     })
@@ -201,7 +204,7 @@ const tabColor = {
      */
     webviews.bindEvent('did-start-navigation', function (tabId, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
       if (isMainFrame) {
-        tabs.update(tabId, {
+        tasks.tabs.update(tabId, {
           backgroundColor: null,
           favicon: null
         })
@@ -231,7 +234,7 @@ const tabColor = {
   },
   updateFromThemeColor: function (color, tabId) {
     if (!color) {
-      tabs.update(tabId, {
+      tasks.tabs.update(tabId, {
         themeColor: null
       })
       return
@@ -240,7 +243,7 @@ const tabColor = {
     const rgb = getColorFromString(color)
     const rgbAdjusted = adjustColorForTheme(rgb)
 
-    tabs.update(tabId, {
+    tasks.tabs.update(tabId, {
       themeColor: {
         color: getRGBString(rgbAdjusted),
         textColor: getTextColor(rgbAdjusted),
@@ -250,7 +253,7 @@ const tabColor = {
   },
   updateFromImage: function (favicons, tabId, callback) {
     // private tabs always use a special color, we don't need to get the icon
-    if (tabs.get(tabId).private === true) {
+    if (tasks.tabs.get(tabId).private === true) {
       return
     }
 
@@ -259,7 +262,7 @@ const tabColor = {
         const backgroundColor = getColorFromImage(colorExtractorImage)
         const backgroundColorAdjusted = adjustColorForTheme(backgroundColor)
 
-        tabs.update(tabId, {
+        tasks.tabs.update(tabId, {
           backgroundColor: {
             color: getRGBString(backgroundColorAdjusted),
             textColor: getTextColor(backgroundColorAdjusted),
@@ -281,7 +284,7 @@ const tabColor = {
     })
   },
   updateColors: function () {
-    const tab = tabs.get(tabs.getSelected())
+    const tab = tasks.tabs.get(tasks.tabs.getSelected())
 
     // private tabs have their own color scheme
     if (tab.private) {

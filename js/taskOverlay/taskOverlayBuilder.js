@@ -1,12 +1,17 @@
-var browserUI = require('browserUI.js')
-var searchbarUtils = require('searchbar/searchbarUtils.js')
-var urlParser = require('util/urlParser.js')
-var searchEngine = require('util/searchEngine.js')
+// @ts-check
+
+const browserUI = require('../browserUI.js')
+const searchbarUtils = require('../searchbar/searchbarUtils.js')
+const urlParser = require('../util/urlParser.js')
+const searchEngine = require('../util/searchEngine.js')
+
+const {tasks} = require("../tabState")
+const {l} = require("../../localization")
 
 const faviconMinimumLuminance = 70 // minimum brightness for a "light" favicon
 
 function getTaskRelativeDate (task) {
-  var minimumTime = new Date()
+  let minimumTime = new Date()
   minimumTime.setHours(0)
   minimumTime.setMinutes(0)
   minimumTime.setSeconds(0)

@@ -8,7 +8,7 @@
   color: #000;
   padding-left: var(--control-space-left);
   padding-right: calc(82px + var(--control-space-right));
-  -webkit-user-select: none;
+  user-select: none;
   max-height: calc(100% - 125px);
   overflow-y: auto;
 }

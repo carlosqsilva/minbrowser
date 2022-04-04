@@ -2,12 +2,12 @@
 
 console.log('worker started ', performance.now())
 
-importScripts('../../node_modules/dexie/dist/dexie.min.js')
-importScripts('../../node_modules/string_score/string_score.min.js')
-importScripts('../util/database.js')
-importScripts('fullTextSearch.js')
-importScripts('placesSearch.js')
-importScripts('tagIndex.js')
+import "../../node_modules/dexie/dist/dexie"
+import '../../node_modules/string_score/string_score'
+import '../util/database'
+import './fullTextSearch'
+import './placesSearch'
+import './tagIndex'
 
 const spacesRegex = /[+\s._/-]+/g // things that could be considered spaces
 

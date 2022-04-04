@@ -6,8 +6,8 @@ function isVisible (el) {
 }
 
 function extractPageText (doc, win) {
-  var maybeNodes = [].slice.call(doc.body.childNodes)
-  var textNodes = []
+  let maybeNodes = [].slice.call(doc.body.childNodes)
+  const textNodes = []
 
   var ignore = 'link, style, script, noscript, .hidden, [class*="-hidden"], .visually-hidden, .visuallyhidden, [role=presentation], [hidden], [style*="display:none"], [style*="display: none"], .ad, .dialog, .modal, select, svg, details:not([open])'
 
@@ -31,18 +31,18 @@ function extractPageText (doc, win) {
     }
 
     // otherwise, add the node's text nodes to the list of text, and the other child nodes to the list of nodes to check
-    var childNodes = node.childNodes
-    var cnl = childNodes.length
+    const childNodes = node.childNodes
+    const cnl = childNodes.length
 
     for (var i = cnl - 1; i >= 0; i--) {
-      var childNode = childNodes[i]
-      maybeNodes.unshift(childNode)
+      // var childNode = childNodes[i]
+      maybeNodes.unshift(childNodes[i])
     }
   }
 
-  var text = ''
+  let text = ''
 
-  var tnl = textNodes.length
+  const tnl = textNodes.length
 
   // combine the text of all of the accepted text nodes together
   for (var i = 0; i < tnl; i++) {
@@ -51,27 +51,26 @@ function extractPageText (doc, win) {
 
   // special meta tags
 
-  var mt = doc.head.querySelector('meta[name=description]')
+  const mt = doc.head.querySelector('meta[name=description]')
 
   if (mt) {
     text += ' ' + mt.content
   }
 
   text = text.trim()
-
   text = text.replace(/[\n\t]/g, ' ') // remove useless newlines/tabs that increase filesize
-
   text = text.replace(/\s{2,}/g, ' ') // collapse multiple spaces into one
+
   return text
 }
 
 function getPageData (cb) {
-  requestAnimationFrame(function () {
-    var text = extractPageText(document, window)
+  requestAnimationFrame(() => {
+    let text = extractPageText(document, window)
 
     // try to also extract text for same-origin iframes (such as the reader mode frame)
 
-    var frames = document.querySelectorAll('iframe')
+    let frames = document.querySelectorAll('iframe')
 
     for (var x = 0; x < frames.length; x++) {
       try {
@@ -91,15 +90,15 @@ function getPageData (cb) {
 
 // send the data when the page loads
 if (process.isMainFrame) {
-  window.addEventListener('load', function (e) {
-    setTimeout(function () {
-      getPageData(function (data) {
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      getPageData((data) => {
         ipc.send('pageData', data)
       })
     }, 500)
   })
 
-  setTimeout(function () {
+  setTimeout(() => {
     // https://stackoverflow.com/a/52809105
     electron.webFrame.executeJavaScript(`
       history.pushState = ( f => function pushState(){
@@ -116,10 +115,10 @@ if (process.isMainFrame) {
   `)
   }, 0)
 
-  window.addEventListener('message', function (e) {
+  window.addEventListener('message', (e) => {
     if (e.data === '_minInternalLocationChange') {
-      setTimeout(function () {
-        getPageData(function (data) {
+      setTimeout(() => {
+        getPageData((data) => {
           ipc.send('pageData', data)
         })
       }, 500)

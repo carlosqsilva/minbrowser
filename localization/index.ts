@@ -1,18 +1,23 @@
-/* provides helper functions for using localized strings */
+// @ts-check
 
-/*
-translations are compiled into here by running "npm run build" in this format
-
-var languages = {
-    en-US: {name: "English (United States), identifier: "en-US", translations: {...}}
+interface Translation {
+  name: string,
+  identifier: string
+  rtl?: boolean
+  translations: Record<string, string>
 }
 
-*/
+const languages: Record<string, Translation> = {
+  "en-US": require("./languages/en-US"),
+  "pt-BR": require("./languages/pt-BR")
+}
 
-function getCurrentLanguage () {
+const { app } = require("electron")
+
+export function getCurrentLanguage() {
   // TODO add a setting to change the language to something other than the default
 
-  var language = 'en-US' // default
+  let language = 'en-US' // default
 
   if (typeof navigator !== 'undefined') { // renderer process
     language = navigator.language
@@ -25,27 +30,18 @@ function getCurrentLanguage () {
   return language
 }
 
-var userLanguage = null
+export let userLanguage: string | null = null
 
-function l (stringId) {
+export function l(stringId: string) {
   if (!userLanguage) {
     userLanguage = getCurrentLanguage()
   }
-
-  var userBaseLanguage = userLanguage.split('-')[0] // examples: es-419 -> es, nl-BE -> nl
-
-  // get the translated string for the given ID
-
-  // try an exact match for the user language
-  if (languages[userLanguage] && languages[userLanguage].translations[stringId] && languages[userLanguage].translations[stringId].unsafeHTML !== null) {
+  
+  if (userLanguage in languages) {
     return languages[userLanguage].translations[stringId]
-    // try a match for the base language, if the language code is for a particular region
-  } else if (languages[userBaseLanguage] && languages[userBaseLanguage].translations[stringId] && languages[userBaseLanguage].translations[stringId].unsafeHTML !== null) {
-    return languages[userBaseLanguage].translations[stringId]
-  } else {
-    // fallback to en-US
-    return languages['en-US'].translations[stringId]
   }
+
+  return languages["en-US"].translations[stringId]
 }
 
 /* for static HTML pages
@@ -60,15 +56,17 @@ if (typeof document !== 'undefined') {
   }
 
   document.querySelectorAll('[data-string]').forEach(function (el) {
-    var str = l(el.getAttribute('data-string'))
+    var str = l(el.getAttribute('data-string') as string)
     if (typeof str === 'string') {
       el.textContent = str
+      // @ts-ignore
     } else if (str && str.unsafeHTML && el.hasAttribute('data-allowHTML')) {
+      // @ts-ignore
       el.innerHTML = str.unsafeHTML
     }
   })
   document.querySelectorAll('[data-label]').forEach(function (el) {
-    var str = l(el.getAttribute('data-label'))
+    var str = l(el.getAttribute('data-label') as string)
     if (typeof str === 'string') {
       el.setAttribute('title', str)
       el.setAttribute('aria-label', str)
@@ -77,16 +75,11 @@ if (typeof document !== 'undefined') {
     }
   })
   document.querySelectorAll('[data-value]').forEach(function (el) {
-    var str = l(el.getAttribute('data-value'))
+    var str = l(el.getAttribute('data-value') as string)
     if (typeof str === 'string') {
       el.setAttribute('value', str)
     } else {
       throw new Error('invalid data-value value: ' + str)
     }
   })
-}
-if (typeof window !== 'undefined') {
-  window.l = l
-  window.userLanguage = userLanguage
-  window.getCurrentLanguage = getCurrentLanguage
 }

@@ -1,4 +1,6 @@
-var urlParser = require('util/urlParser.js')
+// @ts-check
+
+var urlParser = require('../util/urlParser.js')
 
 var lastItemDeletion = Date.now() // TODO get rid of this
 

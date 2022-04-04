@@ -1,6 +1,10 @@
-const webviews = require('webviews.js')
-const settings = require('util/settings/settings.js')
-const remoteMenu = require('remoteMenuRenderer.js')
+// @ts-check
+
+const webviews = require('../webviews.js')
+const settings = require('../util/settings/settings.js')
+const remoteMenu = require('../remoteMenuRenderer.js')
+
+const {tasks} = require("../tabState")
 
 const contentBlockingToggle = {
   enableBlocking: function (url) {
@@ -61,7 +65,7 @@ const contentBlockingToggle = {
     return button
   },
   showMenu: function (button) {
-    var url = tabs.get(tabs.getSelected()).url
+    var url = tasks.tabs.get(tasks.tabs.getSelected()).url
     var menu = [
       [
         {
@@ -82,8 +86,8 @@ const contentBlockingToggle = {
         {
           label: l('appMenuReportBug'),
           click: function () {
-            var newTab = tabs.add({ url: 'https://github.com/minbrowser/min/issues/new?title=Content%20blocking%20issue%20on%20' + encodeURIComponent(url) })
-            require('browserUI.js').addTab(newTab, { enterEditMode: false })
+            var newTab = tasks.tabs.add({ url: 'https://github.com/minbrowser/min/issues/new?title=Content%20blocking%20issue%20on%20' + encodeURIComponent(url) })
+            require('../browserUI.js').addTab(newTab, { enterEditMode: false })
           }
         }
       ]
@@ -91,7 +95,7 @@ const contentBlockingToggle = {
     remoteMenu.open(menu)
   },
   update: function (tabId, button) {
-    if (!tabs.get(tabId).url.startsWith('http') && !tabs.get(tabId).url.startsWith('https')) {
+    if (!tasks.tabs.get(tabId).url.startsWith('http') && !tasks.tabs.get(tabId).url.startsWith('https')) {
       button.hidden = true
       return
     }
@@ -102,7 +106,7 @@ const contentBlockingToggle = {
     }
 
     button.hidden = false
-    if (contentBlockingToggle.isBlockingEnabled(tabs.get(tabId).url)) {
+    if (contentBlockingToggle.isBlockingEnabled(tasks.tabs.get(tabId).url)) {
       button.style.opacity = 1
     } else {
       button.style.opacity = 0.4

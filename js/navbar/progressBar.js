@@ -1,3 +1,5 @@
+// @ts-check
+
 const progressBar = {
   create: function () {
     var pbContainer = document.createElement('div')

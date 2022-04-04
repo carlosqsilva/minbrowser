@@ -1,3 +1,8 @@
+// @ts-check
+
+const {app, webContents} = require("electron")
+const settings = require("../util/settings/settings")
+
 let proxyConfig = {}
 
 settings.listen('proxy', (proxy = {}) => {

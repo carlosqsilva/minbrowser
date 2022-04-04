@@ -1,8 +1,12 @@
-const TaskList = require('tabState/task.js')
+// @ts-check
 
-function initialize () {
-  window.tasks = new TaskList()
-  window.tabs = undefined
-}
+const TaskList = require('./tabState/task.js')
 
-module.exports = { initialize }
+// class TabState {
+//   constructor() {
+//     this.tasks = new TaskList()
+//     this.tabs = undefined
+//   }
+// }
+
+export const tasks = new TaskList()

@@ -1,8 +1,13 @@
-var webviews = require('webviews.js')
-var keybindings = require('keybindings.js')
-var PDFViewer = require('pdfViewer.js')
+// @ts-check
 
-var findinpage = {
+const webviews = require('./webviews.js')
+const keybindings = require('./keybindings.js')
+const PDFViewer = require('./pdfViewer.js')
+
+const {l} = require("../localization")
+const {tasks} = require("./tabState")
+
+const findinpage = {
   container: document.getElementById('findinpage-bar'),
   input: document.getElementById('findinpage-input'),
   counter: document.getElementById('findinpage-count'),
@@ -15,7 +20,7 @@ var findinpage = {
 
     findinpage.input.placeholder = l('searchInPage')
 
-    findinpage.activeTab = tabs.getSelected()
+    findinpage.activeTab = tasks.tabs.getSelected()
 
     /* special case for PDF viewer */
 
@@ -42,7 +47,7 @@ var findinpage = {
       webviews.callAsync(findinpage.activeTab, 'stopFindInPage', action)
 
       /* special case for PDF viewer */
-      if (tabs.get(findinpage.activeTab) && PDFViewer.isPDFViewer(findinpage.activeTab)) {
+      if (tasks.tabs.get(findinpage.activeTab) && PDFViewer.isPDFViewer(findinpage.activeTab)) {
         PDFViewer.endFindInPage(findinpage.activeTab)
       }
 

@@ -1,6 +1,8 @@
-var urlParser = require('util/urlParser.js')
+// @ts-check
 
-function autocomplete (input, strings) {
+const urlParser = require('./urlParser.js')
+
+export function autocomplete(input, strings) {
   // if there is text after the selection, we can never autocomplete
   if (input.selectionEnd !== input.value.length) {
     return {
@@ -31,7 +33,7 @@ function autocomplete (input, strings) {
 
 // autocompletes based on a result item
 // returns: 1 - the exact URL was autocompleted, 0 - the domain was autocompleted, -1: nothing was autocompleted
-function autocompleteURL (input, url) {
+export function autocompleteURL(input, url) {
   var urlObj = new URL(url)
   var hostname = urlObj.hostname
 
@@ -59,5 +61,3 @@ function autocompleteURL (input, url) {
     return 1
   }
 }
-
-module.exports = { autocomplete, autocompleteURL }

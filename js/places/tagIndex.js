@@ -1,3 +1,5 @@
+// @ts-check
+
 var tagIndex = {
   totalDocs: 0,
   termDocCounts: {},

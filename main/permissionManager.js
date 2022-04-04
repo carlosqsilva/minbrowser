@@ -8,7 +8,7 @@ it will figure out what updates to make
 */
 function sendPermissionsToRenderer () {
   // remove properties that can't be serialized over IPC
-  sendIPCToWindow(mainWindow, 'updatePermissions', pendingPermissions.concat(grantedPermissions).map(p => {
+  sendIPCToWindow('updatePermissions', pendingPermissions.concat(grantedPermissions).map(p => {
     return {
       permissionId: p.permissionId,
       tabId: p.tabId,

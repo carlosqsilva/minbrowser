@@ -1,6 +1,8 @@
-var browserUI = require('browserUI.js')
+// @ts-check
 
-var addTabButton = document.getElementById('add-tab-button')
+const browserUI = require('../browserUI.js')
+
+const addTabButton = document.getElementById('add-tab-button')
 
 function initialize () {
   addTabButton.addEventListener('click', function (e) {

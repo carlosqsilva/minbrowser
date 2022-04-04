@@ -1,23 +1,26 @@
-const webviews = require('webviews.js')
+// @ts-check
 
-var navigationButtons = {
+const webviews = require('../webviews.js')
+const {tasks} = require("../tabState")
+
+const navigationButtons = {
   tabsList: document.getElementById('tabs-inner'),
   container: document.getElementById('toolbar-navigation-buttons'),
   backButton: document.getElementById('back-button'),
   forwardButton: document.getElementById('forward-button'),
   update: function () {
-    if (!tabs.get(tabs.getSelected()).url) {
+    if (!tasks.tabs.get(tasks.tabs.getSelected()).url) {
       navigationButtons.backButton.disabled = true
       navigationButtons.forwardButton.disabled = true
       return
     }
-    webviews.callAsync(tabs.getSelected(), 'canGoBack', function (err, canGoBack) {
+    webviews.callAsync(tasks.tabs.getSelected(), 'canGoBack', function (err, canGoBack) {
       if (err) {
         return
       }
       navigationButtons.backButton.disabled = !canGoBack
     })
-    webviews.callAsync(tabs.getSelected(), 'canGoForward', function (err, canGoForward) {
+    webviews.callAsync(tasks.tabs.getSelected(), 'canGoForward', function (err, canGoForward) {
       if (err) {
         return
       }
@@ -33,11 +36,11 @@ var navigationButtons = {
     navigationButtons.container.hidden = false
 
     navigationButtons.backButton.addEventListener('click', function (e) {
-      webviews.goBackIgnoringRedirects(tabs.getSelected())
+      webviews.goBackIgnoringRedirects(tasks.tabs.getSelected())
     })
 
     navigationButtons.forwardButton.addEventListener('click', function () {
-      webviews.callAsync(tabs.getSelected(), 'goForward')
+      webviews.callAsync(tasks.tabs.getSelected(), 'goForward')
     })
 
     navigationButtons.container.addEventListener('mouseenter', function () {

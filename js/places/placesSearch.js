@@ -1,3 +1,5 @@
+// @ts-check
+
 /* global spacesRegex oneWeekAgo historyInMemoryCache calculateHistoryScore */
 
 /* depends on placesWorker.js */

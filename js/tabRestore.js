@@ -1,3 +1,5 @@
+// @ts-check
+
 function TabStack (tabStack) {
   this.depth = 10
 

@@ -1,8 +1,10 @@
+// @ts-check
+
 /* Determines whether a page should redirect to reader view based on visit history */
 
 if (typeof require !== 'undefined') {
   // running in UI process
-  var settings = require('util/settings/settings.js')
+  var settings = require('./util/settings/settings.js')
 }
 
 const readerDecision = {

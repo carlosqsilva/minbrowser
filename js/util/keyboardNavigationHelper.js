@@ -1,3 +1,5 @@
+// @ts-check
+
 /*
 Creates a group if items that can be navigated through using arrow keys or the tab key
 */

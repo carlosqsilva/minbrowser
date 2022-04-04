@@ -1,22 +1,28 @@
+// @ts-check
+
 const { ipcRenderer } = require('electron')
 
-var webviews = require('webviews.js')
-var keybindings = require('keybindings.js')
-var browserUI = require('browserUI.js')
-var tabBar = require('navbar/tabBar.js')
-var tabEditor = require('navbar/tabEditor.js')
-var focusMode = require('focusMode.js')
-var modalMode = require('modalMode.js')
-var keyboardNavigationHelper = require('util/keyboardNavigationHelper.js')
-var dragula = require('dragula')
+const webviews = require('../webviews.js')
+const keybindings = require('../keybindings.js')
+const browserUI = require('../browserUI.js')
+const tabBar = require('../navbar/tabBar.js')
+const tabEditor = require('../navbar/tabEditor.js')
+const focusMode = require('../focusMode.js')
+const modalMode = require('../modalMode.js')
+const keyboardNavigationHelper = require('../util/keyboardNavigationHelper.js')
+const dragula = require('dragula')
 
-const createTaskContainer = require('taskOverlay/taskOverlayBuilder.js')
+const createTaskContainer = require('./taskOverlayBuilder.js')
 
-var taskContainer = document.getElementById('task-area')
-var taskSwitcherButton = document.getElementById('switch-task-button')
-var addTaskButton = document.getElementById('add-task')
-var addTaskLabel = addTaskButton.querySelector('span')
-var taskOverlayNavbar = document.getElementById('task-overlay-navbar')
+const taskContainer = document.getElementById('task-area')
+const taskSwitcherButton = document.getElementById('switch-task-button')
+const addTaskButton = document.getElementById('add-task')
+const addTaskLabel = addTaskButton.querySelector('span')
+const taskOverlayNavbar = document.getElementById('task-overlay-navbar')
+
+const {empty} = require("../util/utils")
+const {l} = require("../../localization")
+const {tasks} = require("../tabState")
 
 function addTaskFromMenu () {
   /* new tasks can't be created in modal mode */
@@ -34,7 +40,7 @@ function addTaskFromMenu () {
   taskOverlay.show()
   setTimeout(function () {
     taskOverlay.hide()
-    tabEditor.show(tabs.getSelected())
+    tabEditor.show(tasks.tabs.getSelected())
   }, 600)
 }
 
@@ -66,7 +72,7 @@ function endMouseDragRecording () {
   clearInterval(draggingScrollInterval)
 }
 
-var taskOverlay = {
+const taskOverlay = {
   overlayElement: document.getElementById('task-overlay'),
   isShown: false,
   tabDragula: dragula({
@@ -194,8 +200,8 @@ var taskOverlay = {
 
       // if the current tab has been deleted, switch to the most recent one
 
-      if (!tabs.getSelected()) {
-        var mostRecentTab = tabs.get().sort(function (a, b) {
+      if (!tasks.tabs.getSelected()) {
+        var mostRecentTab = tasks.tabs.get().sort(function (a, b) {
           return b.lastActivity - a.lastActivity
         })[0]
 
@@ -206,7 +212,7 @@ var taskOverlay = {
 
       // force the UI to rerender
       browserUI.switchToTask(tasks.getSelected().id)
-      browserUI.switchToTab(tabs.getSelected())
+      browserUI.switchToTab(tasks.tabs.getSelected())
 
       taskSwitcherButton.classList.remove('active')
     }
