@@ -1,4 +1,4 @@
-import {ipcRenderer as ipc} from "electron"
+import { ipcRenderer as ipc, webFrame } from "electron";
 
 /**
 Simple username/password field detector and auto-filler.
@@ -389,7 +389,7 @@ window.addEventListener(
   true
 );
 
-electron.webFrame.executeJavaScript(`
+webFrame.executeJavaScript(`
 var origSubmit = HTMLFormElement.prototype.submit;
 HTMLFormElement.prototype.submit = function () {
   window.postMessage({message: 'formSubmit'})

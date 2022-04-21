@@ -1,6 +1,7 @@
 /node_modules
 /.vscode
 .npm
+.node
 dist
 main.build.js
 .DS_Store

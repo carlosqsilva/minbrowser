@@ -1,16 +1,18 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
     "lib": ["DOM"],
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "typeRoots": ["node_modules/@types", "src/@types"]
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "typeRoots": ["node_modules/@types", "types/custom.d.ts"]
   },
-  "include": ["types", "main/**/*", "localization/**/*", "js/**/*"],
+  "include": ["types", "main/**/*", "localization/**/*", "js/**/*", "pages/**/*", "reader/**/*"],
   "exclude": ["node_modules"]
 }

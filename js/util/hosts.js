@@ -12,7 +12,7 @@ function truncatedHostsFileLines (data, limit) {
     : data.split('\n')
 }
 
-fs.readFile(HOSTS_FILE, 'utf8', function (err, data) {
+fs.readFile(HOSTS_FILE, 'utf8', (err, data) => {
   if (err) {
     console.warn('error retrieving hosts file', err)
     return
@@ -22,11 +22,11 @@ fs.readFile(HOSTS_FILE, 'utf8', function (err, data) {
 
   const lines = truncatedHostsFileLines(data, 128 * 1024)
 
-  lines.forEach(function (line) {
+  lines.forEach((line) => {
     if (line.startsWith('#')) {
       return
     }
-    line.split(/\s/g).forEach(function (host) {
+    line.split(/\s/g).forEach((host) => {
       if (host.length > 0 && host !== '255.255.255.255' && host !== 'broadcasthost' && !hostsMap[host]) {
         hosts.push(host)
         hostsMap[host] = true

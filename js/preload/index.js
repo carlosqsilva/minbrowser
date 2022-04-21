@@ -1,5 +1,6 @@
-import './default'
-import './siteUnbreak'
-import './passwordFill'
-import './readerDetector'
-import './textExtractor'
+import "./default";
+import "./textExtractor";
+import "./readerDetector";
+import "./siteUnbreak";
+import "../../js/util/settings/settingsPreload";
+import "./passwordFill";

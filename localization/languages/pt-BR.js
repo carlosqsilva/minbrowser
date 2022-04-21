@@ -244,7 +244,7 @@ export default {
     /* Update Notifications */
     "updateNotificationTitle": "Uma nova versão do Min está disponível",
     /* Autofill settings */
-    "settingsPasswordAutoFillHeadline": "Preenchimento automático de senhas",
+    "settingsPasswordAutoFillHeadline": "Senhas",
     "settingsSelectPasswordManager": "Escolha um gerenciadoror de senhas suportado:",
     "keychainViewPasswords": "Ver senhas salvas",
     /* Password manager setup */

@@ -1,12 +1,16 @@
 // @ts-check
 
-import type {BrowserWindow, KeyboardEvent, MenuItem, WebContents} from "electron"
-import { app, Menu } from "electron"
+import type {
+  KeyboardEvent,
+  MenuItem,
+  WebContents,
+} from "electron";
+import { app, Menu, webContents } from "electron";
 
-import settings from "../js/util/settings/settingsMain"
-const { destroyAllViews } = require("./viewManager");
-const { getMainWindow } = require("./window");
-import { l } from "../localization"
+import settings from "../js/util/settings/settingsMain";
+import { destroyAllViews } from "./viewManager";
+import { getMainWindow, sendIPCToWindow } from "./window";
+import { l } from "../localization";
 
 function getFormattedKeyMapEntry(keybinding: string): string | undefined {
   const value = settings.get("keyMap")?.[keybinding];
@@ -23,7 +27,7 @@ function getFormattedKeyMapEntry(keybinding: string): string | undefined {
   return undefined;
 }
 
-export function createAppMenu(sendIPCToWindow) {
+export function createAppMenu() {
   function openTabInWindow(url: string) {
     sendIPCToWindow("addTab", {
       url: url,
@@ -72,7 +76,7 @@ export function createAppMenu(sendIPCToWindow) {
         },
         {
           label: l("appMenuHide").replace("%n", app.name),
-          accelerator: "CmdOrCtrl+H",
+          accelerator: "Command+H",
           role: "hide",
         },
         {
@@ -91,6 +95,55 @@ export function createAppMenu(sendIPCToWindow) {
       ],
     },
     {
+      label: l('appMenuEdit'),
+      submenu: [
+        {
+          label: l('appMenuUndo'),
+          accelerator: 'Command+Z',
+          role: 'undo'
+        },
+        {
+          label: l('appMenuRedo'),
+          accelerator: 'Shift+Command+Z',
+          role: 'redo'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: l('appMenuCut'),
+          accelerator: 'Command+X',
+          role: 'cut'
+        },
+        {
+          label: l('appMenuCopy'),
+          accelerator: 'Command+C',
+          role: 'copy'
+        },
+        {
+          label: l('appMenuPaste'),
+          accelerator: 'Command+V',
+          role: 'paste'
+        },
+        {
+          label: l('appMenuSelectAll'),
+          accelerator: 'Command+A',
+          role: 'selectall'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: l('appMenuFind'),
+          accelerator: 'Command+F',
+          click: () => {
+            console.log("asasas")
+            sendIPCToWindow('findInPage')
+          }
+        },
+      ]
+    },
+    {
       label: l("appMenuWindow"),
       role: "window",
       submenu: [
@@ -106,10 +159,10 @@ export function createAppMenu(sendIPCToWindow) {
             const mainWindow = getMainWindow();
             if (mainWindow && !mainWindow.isFocused()) {
               // a devtools window is focused, close it
-              var contents = mainWindow.webContents.getAllWebContents();
-              for (var i = 0; i < contents.length; i++) {
-                if (contents[i].isDevToolsFocused()) {
-                  contents[i].closeDevTools();
+              const contents = webContents.getAllWebContents();
+              for (const content of contents) {
+                if (content.isDevToolsFocused()) {
+                  content.closeDevTools();
                   return;
                 }
               }
@@ -176,7 +229,7 @@ export function createAppMenu(sendIPCToWindow) {
       submenu: [
         {
           label: l("appMenuKeyboardShortcuts"),
-          click: function () {
+          click: () => {
             openTabInWindow(
               "https://github.com/minbrowser/min/wiki#keyboard-shortcuts"
             );
@@ -184,19 +237,19 @@ export function createAppMenu(sendIPCToWindow) {
         },
         {
           label: l("appMenuReportBug"),
-          click: function () {
+          click: () => {
             openTabInWindow("https://github.com/minbrowser/min/issues/new");
           },
         },
         {
           label: l("appMenuTakeTour"),
-          click: function () {
+          click: () => {
             openTabInWindow("https://minbrowser.github.io/min/tour/");
           },
         },
         {
           label: l("appMenuViewGithub"),
-          click: function () {
+          click: () => {
             openTabInWindow("https://github.com/minbrowser/min");
           },
         },
@@ -204,10 +257,13 @@ export function createAppMenu(sendIPCToWindow) {
     },
   ];
 
-  return Menu.setApplicationMenu(Menu.buildFromTemplate(template as MenuItem[]));
+  return Menu.setApplicationMenu(
+    // @ts-ignore
+    Menu.buildFromTemplate(template)
+  );
 }
 
-export function createDockMenu(sendIPCToWindow) {
+export function createDockMenu() {
   // create the menu. based on example from https://github.com/electron/electron/blob/master/docs/tutorial/desktop-environment-integration.md#custom-dock-menu-macos
   app.dock.setMenu(
     Menu.buildFromTemplate([

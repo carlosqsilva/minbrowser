@@ -3,38 +3,42 @@
 import fs from "fs";
 import path from "path";
 import { ipcRenderer as ipc } from "electron";
+import { getConfig } from "./util/utils";
 
-const newTabPage = {
-  background: document.getElementById("ntp-background") as HTMLImageElement,
-  hasBackground: false,
-  picker: document.getElementById("ntp-image-picker") as HTMLButtonElement,
-  deleteBackground: document.getElementById("ntp-image-remove") as HTMLElement,
-  imagePath: path.join(window.globalArgs["user-data-path"], "newTabBackground"),
-  reloadBackground: function () {
-    newTabPage.background.src = newTabPage.imagePath + "?t=" + Date.now();
-    function onLoad() {
-      newTabPage.background.hidden = false;
-      newTabPage.hasBackground = true;
+class NewTabPage {
+  public background = document.getElementById("ntp-background") as HTMLImageElement
+  public hasBackground = false
+  public picker = document.getElementById("ntp-image-picker") as HTMLButtonElement
+  public deleteBackground = document.getElementById("ntp-image-remove") as HTMLElement
+  public imagePath = path.join(getConfig("user-data-path"), "newTabBackground")
+
+  public reloadBackground() {
+    this.background.src = this.imagePath + "?t=" + Date.now();
+    
+    const onLoad = () => {
+      this.background.hidden = false;
+      this.hasBackground = true;
       document.body.classList.add("ntp-has-background");
-      newTabPage.background.removeEventListener("load", onLoad);
-
-      newTabPage.deleteBackground.hidden = false;
+      this.background.removeEventListener("load", onLoad);
+      this.deleteBackground.hidden = false;
     }
-    function onError() {
-      newTabPage.background.hidden = true;
-      newTabPage.hasBackground = false;
+
+    const onError = () => {
+      this.background.hidden = true;
+      this.hasBackground = false;
       document.body.classList.remove("ntp-has-background");
-      newTabPage.background.removeEventListener("error", onError);
-
-      newTabPage.deleteBackground.hidden = true;
+      this.background.removeEventListener("error", onError);
+      this.deleteBackground.hidden = true;
     }
-    newTabPage.background.addEventListener("load", onLoad);
-    newTabPage.background.addEventListener("error", onError);
-  },
-  initialize: function () {
-    newTabPage.reloadBackground();
 
-    newTabPage.picker.addEventListener("click", async function () {
+    this.background.addEventListener("load", onLoad);
+    this.background.addEventListener("error", onError);
+  }
+
+  constructor() {
+    this.reloadBackground();
+
+    this.picker.addEventListener("click", async () => {
       const [filePath] = await ipc.invoke("showOpenDialog", {
         filters: [
           {
@@ -48,15 +52,15 @@ const newTabPage = {
         return;
       }
 
-      await fs.promises.copyFile(filePath, newTabPage.imagePath);
-      newTabPage.reloadBackground();
+      await fs.promises.copyFile(filePath, this.imagePath);
+      this.reloadBackground();
     });
 
-    newTabPage.deleteBackground.addEventListener("click", async function () {
-      await fs.promises.unlink(newTabPage.imagePath);
-      newTabPage.reloadBackground();
+    this.deleteBackground.addEventListener("click", async () => {
+      await fs.promises.unlink(this.imagePath);
+      this.reloadBackground();
     });
-  },
+  }
 };
 
-module.exports = newTabPage;
+export default new NewTabPage();

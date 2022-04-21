@@ -34,7 +34,7 @@ html {
   color: #000;
   height: 100%;
   overflow: hidden;
-  -webkit-user-select: none;
+  user-select: none;
 }
 
 body.dark-mode {

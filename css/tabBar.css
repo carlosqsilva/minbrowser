@@ -3,7 +3,7 @@
   height: calc(36px + var(--control-space-top));
   transition: 0.2s background-color;
   width: 100%;
-  -webkit-user-select: none;
+  user-select: none;
   position: relative;
   outline: none;
   z-index: 2;
@@ -74,10 +74,10 @@ body.is-edit-mode #toolbar-navigation-buttons {
   display: none;
 }
 
-body.windows #menu-button,
+/* body.windows #menu-button,
 body.linux #menu-button {
   display: inline-block;
-}
+} */
 
 /* tab layout */
 

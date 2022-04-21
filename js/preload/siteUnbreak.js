@@ -1,3 +1,5 @@
+import { ipcRenderer as ipc, webFrame } from "electron";
+
 const scriptsToRun = [];
 
 /* a collection of various hacks to unbreak sites, mainly due to missing window.open() support */
@@ -128,6 +130,6 @@ if (window.location.hostname === "mail.google.com") {
 
 if (scriptsToRun.length > 0) {
   setTimeout(() => {
-    electron.webFrame.executeJavaScript(scriptsToRun.join(";"));
+    webFrame.executeJavaScript(scriptsToRun.join(";"));
   }, 0);
 }

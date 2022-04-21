@@ -1,32 +1,38 @@
-const chokidar = require('chokidar')
-const path = require('path')
+const chokidar = require("chokidar");
+const path = require("path");
 
-const mainDir = path.resolve(__dirname, '../main')
-const jsDir = path.resolve(__dirname, '../js')
-const preloadDir = path.resolve(__dirname, '../js/preload')
-const browserStylesDir = path.resolve(__dirname, '../css')
+const buildMain = require("./buildMain");
+const buildBrowser = require("./buildBrowser");
+const buildWorker = require("./buildWorker");
+const buildPreload = require("./buildPreload");
+const buildBrowserStyles = require("./buildBrowserStyles");
 
-const buildMain = require('./buildMain.js')
-const buildBrowser = require('./buildBrowser.js')
-const buildPreload = require('./buildPreload.js')
-const buildBrowserStyles = require('./buildBrowserStyles.js')
+const mainDir = path.resolve(__dirname, "../main");
+chokidar.watch(mainDir).on("change", () => {
+  console.log("rebuilding main");
+  buildMain();
+});
 
-chokidar.watch(mainDir).on('change', function () {
-  console.log('rebuilding main')
-  buildMain()
-})
+const preloadDir = path.resolve(__dirname, "../js/preload");
+chokidar.watch(preloadDir).on("change", () => {
+  console.log("rebuilding preload script");
+  buildPreload();
+});
 
-chokidar.watch(jsDir, { ignored: preloadDir }).on('change', function () {
-  console.log('rebuilding browser')
-  buildBrowser()
-})
+const worker = [path.resolve(__dirname, "../js/places/places.worker.js")];
+chokidar.watch(worker).on("change", () => {
+  console.log("rebuilding workers");
+  buildWorker();
+});
 
-chokidar.watch(preloadDir).on('change', function () {
-  console.log('rebuilding preload script')
-  buildPreload()
-})
+const jsDir = path.resolve(__dirname, "../js");
+chokidar.watch(jsDir, { ignored: preloadDir }).on("change", () => {
+  console.log("rebuilding browser");
+  buildBrowser();
+});
 
-chokidar.watch(browserStylesDir).on('change', function () {
-  console.log('rebuilding browser styles')
-  buildBrowserStyles()
-})
+const browserStylesDir = path.resolve(__dirname, "../css");
+chokidar.watch(browserStylesDir).on("change", () => {
+  console.log("rebuilding browser styles");
+  buildBrowserStyles();
+});

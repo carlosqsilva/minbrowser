@@ -1,6 +1,6 @@
 const path = require('path')
 const esbuild = require("esbuild")
-
+const nativeModulePlugin = require("./esbuild-native-module-plugin")
 const outFile = path.resolve(__dirname, '../main.build.js')
 
 async function buildWithEsbuild() {
@@ -11,9 +11,11 @@ async function buildWithEsbuild() {
     metafile: true,
     outfile: outFile,
     platform: "node",
-    target: "node16",
     external: ["electron"],
     entryPoints: ['./main/index.js'],
+    plugins: [
+      nativeModulePlugin
+    ]
   })
 
   const output = result?.metafile?.outputs || {};

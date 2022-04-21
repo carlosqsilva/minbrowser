@@ -3,6 +3,7 @@
 import fs from "fs";
 import path from "path";
 import { ipcMain as ipc, app } from "electron";
+import { getMainWindow } from "../../../main/window";
 
 type Func = (...args: any) => void
 
@@ -95,30 +96,8 @@ class Settings {
     this.writeFile();
     this.runChangeCallbacks(key);
 
-    // if (mainWindow) {
-    //   mainWindow.webContents.send('settingChanged', key, value)
-    // }
+    getMainWindow()?.webContents.send('settingChanged', key, value)
   }
-
-  // public initialize() {
-  //   let fileData
-  //   try {
-  //     fileData = fs.readFileSync(settings.filePath, 'utf-8')
-  //   } catch (e: ReturnType<Error>) {
-  //     if (e.code !== 'ENOENT') {
-  //       console.warn(e)
-  //     }
-  //   }
-  //   if (fileData) {
-  //     settings.list = JSON.parse(fileData)
-  //   }
-
-  //   ipc.on('settingChanged', function (e, key, value) {
-  //     settings.list[key] = value
-  //     settings.writeFile()
-  //     settings.runChangeCallbacks(key)
-  //   })
-  // }
 }
 
 const settings = new Settings();

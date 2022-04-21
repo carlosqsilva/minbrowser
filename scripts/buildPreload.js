@@ -6,11 +6,11 @@ const outFile = path.resolve(__dirname, '../dist/preload.js')
 async function buildPreload() {
   const result = await esbuild.build({
     bundle: true,
-    minify: false,
-    keepNames: true,
+    minify: true,
+    // keepNames: true,
     metafile: true,
     target: "esnext",
-    platform: "browser",
+    platform: "node",
     format: "cjs",
     external: ["electron"],
     entryPoints: ['./js/preload/index.js'],

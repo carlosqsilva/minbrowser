@@ -1,4 +1,12 @@
+import { ipcRenderer as ipc } from "electron";
+
 /* detects if a page is readerable, and tells the main process if it is */
+
+function checkReaderStatus() {
+  if (pageIsReaderable()) {
+    ipc.send("canReader");
+  }
+}
 
 function pageIsReaderable() {
   const paragraphMap = new Map();
@@ -18,12 +26,12 @@ function pageIsReaderable() {
     totalLength += pLength;
 
     const prev = paragraphMap.get(paragraph.parentNode) || 0;
-    paragraphMap.set(propertiesToClone.parentNode, prev + pLength);
+    paragraphMap.set(paragraph.parentNode, prev + pLength);
   }
 
   let largestValue = 0;
 
-  paragraphMap.forEach(function (value, key) {
+  paragraphMap.forEach((value, key) => {
     if (value > largestValue) {
       largestValue = value;
     }
@@ -42,15 +50,9 @@ function pageIsReaderable() {
   }
 }
 
-function checkReaderStatus() {
-  if (pageIsReaderable()) {
-    ipc.send("canReader");
-  }
-}
-
 if (process.isMainFrame) {
   // unlike DOMContentLoaded, readystatechange doesn't wait for <script defer>, so it happens a bit sooner
-  document.addEventListener("readystatechange", function () {
+  document.addEventListener("readystatechange", () => {
     if (document.readyState === "interactive") {
       checkReaderStatus();
     }
