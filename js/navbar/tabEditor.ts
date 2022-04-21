@@ -3,8 +3,8 @@ import webviews from "../webviews";
 import modalMode from "../modalMode";
 import { urlParser } from "../util/urlParser";
 import keyboardNavigationHelper from "../util/keyboardNavigationHelper";
-const bookmarkStar = require("./bookmarkStar.js");
-const contentBlockingToggle = require("./contentBlockingToggle.js");
+import { bookmarkStar } from "./bookmarkStar";
+import { contentBlockingToggle } from "./contentBlockingToggle";
 
 import { l } from "../../localization";
 import { tasks } from "../tabState";

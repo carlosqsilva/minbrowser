@@ -2,11 +2,10 @@ import { score } from "string_score";
 
 import * as browserUI from "../browserUI";
 import searchbarPlugins from "../searchbar/searchbarPlugins";
-var urlParser = require("../util/urlParser.js");
+import { urlParser } from "../util/urlParser";
 import { Task, tasks } from "../tabState";
 import { Tab } from "../tabState/tab";
 import { l } from "../../localization";
-
 
 interface Match {
   task: Task;
@@ -34,7 +33,7 @@ const searchOpenTabs = (text: string, input: HTMLInputElement, event: any) => {
         tab.title.toLowerCase().indexOf(searchText) !== -1 ||
         tabUrl.toLowerCase().indexOf(searchText) !== -1;
       const fuzzyTitleScore = score(tab.title.substring(0, 50), text, 0.5);
-      const fuzzyUrlScore = score(tabUrl, text, 0.5) 
+      const fuzzyUrlScore = score(tabUrl, text, 0.5);
 
       if (exactMatch || fuzzyTitleScore > 0.4 || fuzzyUrlScore > 0.4) {
         matches.push({

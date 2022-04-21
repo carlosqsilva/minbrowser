@@ -1,16 +1,17 @@
 import path from "path";
-const punycode = require("punycode");
+import punycode from "punycode";
 
+import hosts from "./hosts";
 import { searchEngine } from "./searchEngine/renderer";
-const hosts = require("./hosts.js");
+
 const httpsTopSites = require("../../ext/httpsUpgrade/httpsTopSites.json");
 const publicSuffixes = require("../../ext/publicSuffixes/public_suffix_list.json");
 
-function removeWWW(domain) {
+export function removeWWW(domain) {
   return domain.startsWith("www.") ? domain.slice(4) : domain;
 }
 
-function removeTrailingSlash(url) {
+export function removeTrailingSlash(url) {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 

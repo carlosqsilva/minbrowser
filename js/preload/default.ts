@@ -1,6 +1,6 @@
 /* imports common modules */
 
-import { ipcRenderer as ipc } from "electron"
+import { ipcRenderer as ipc } from "electron";
 
 const propertiesToClone = [
   "deltaX",
@@ -53,7 +53,8 @@ ipc.on("getContextMenuData", (e, data) => {
 ipc.on("enterPictureInPicture", (e, data) => {
   const [video] = Array.from(document.elementsFromPoint(data.x, data.y)).filter(
     (el) => el.tagName === "VIDEO"
-  );
+  ) as HTMLVideoElement[];
+  
   if (video) video.requestPictureInPicture();
 });
 

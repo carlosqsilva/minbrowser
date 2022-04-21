@@ -150,8 +150,8 @@ class SearchbarPlugins {
 
   public register(name: string, object: {
     index: number,
-    trigger: (text: string) => boolean,
-    showResults: (text: string, input: HTMLInputElement, event: any ) => void
+    trigger?: (text: string) => boolean,
+    showResults?: (text: string, input: HTMLInputElement, event: any ) => void
   }) {
     // add the container
     const container = document.createElement("div");

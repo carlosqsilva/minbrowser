@@ -1,5 +1,3 @@
-// @ts-check
-
 import webviews from "../webviews";
 import settings from "../util/settings/settings";
 import * as remoteMenu from "../remoteMenuRenderer";
@@ -7,36 +5,34 @@ import * as remoteMenu from "../remoteMenuRenderer";
 import { tasks } from "../tabState";
 import { l } from "../../localization";
 
-const contentBlockingToggle = {
-  enableBlocking: function (url) {
+export const contentBlockingToggle = {
+  enableBlocking: (url: string) => {
     if (!url) {
       return;
     }
-    var domain = new URL(url).hostname;
+    const domain = new URL(url).hostname;
 
-    var setting = settings.get("filtering");
-    if (!setting) {
-      setting = {};
-    }
+    const setting = settings.get("filtering") ?? {};
+
     if (!setting.exceptionDomains) {
       setting.exceptionDomains = [];
     }
+
     setting.exceptionDomains = setting.exceptionDomains.filter(
       (d) => d.replace(/^www\./g, "") !== domain.replace(/^www\./g, "")
     );
     settings.set("filtering", setting);
     webviews.callAsync(tasks.tabs.getSelected(), "reload");
   },
-  disableBlocking: function (url) {
+  disableBlocking: (url: string) => {
     if (!url) {
       return;
     }
-    var domain = new URL(url).hostname;
 
-    var setting = settings.get("filtering");
-    if (!setting) {
-      setting = {};
-    }
+    const domain = new URL(url).hostname;
+
+    const setting = settings.get("filtering") ?? {};
+
     if (!setting.exceptionDomains) {
       setting.exceptionDomains = [];
     }
@@ -51,14 +47,15 @@ const contentBlockingToggle = {
     settings.set("filtering", setting);
     webviews.callAsync(tasks.tabs.getSelected(), "reload");
   },
-  isBlockingEnabled: function (url) {
+  isBlockingEnabled: (url: string) => {
+    let domain: string;
     try {
-      var domain = new URL(url).hostname;
+      domain = new URL(url).hostname;
     } catch (e) {
       return false;
     }
 
-    var setting = settings.get("filtering");
+    const setting = settings.get("filtering");
     return (
       !setting ||
       !setting.exceptionDomains ||
@@ -67,19 +64,19 @@ const contentBlockingToggle = {
       )
     );
   },
-  create: function () {
+  create: () => {
     const button = document.createElement("button");
     button.className = "tab-editor-button i carbon:manage-protection";
 
-    button.addEventListener("click", function (e) {
+    button.addEventListener("click", (e) => {
       contentBlockingToggle.showMenu(button);
     });
 
     return button;
   },
-  showMenu: function (button) {
-    var url = tasks.tabs.get(tasks.tabs.getSelected()).url;
-    var menu = [
+  showMenu: (button) => {
+    const url = tasks.tabs.get(tasks.tabs.getSelected()).url;
+    const menu = [
       [
         {
           type: "checkbox",
@@ -111,7 +108,7 @@ const contentBlockingToggle = {
     ];
     remoteMenu.open(menu);
   },
-  update: function (tabId, button) {
+  update: (tabId: string, button: HTMLButtonElement) => {
     if (
       !tasks.tabs.get(tabId).url.startsWith("http") &&
       !tasks.tabs.get(tabId).url.startsWith("https")
@@ -130,11 +127,9 @@ const contentBlockingToggle = {
 
     button.hidden = false;
     if (contentBlockingToggle.isBlockingEnabled(tasks.tabs.get(tabId).url)) {
-      button.style.opacity = 1;
+      button.style.opacity = String(1);
     } else {
-      button.style.opacity = 0.4;
+      button.style.opacity = String(0.4);
     }
   },
 };
-
-module.exports = contentBlockingToggle;

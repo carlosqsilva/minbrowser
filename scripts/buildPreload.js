@@ -13,7 +13,7 @@ async function buildPreload() {
     platform: "node",
     format: "cjs",
     external: ["electron"],
-    entryPoints: ['./js/preload/index.js'],
+    entryPoints: ['./js/preload/index.ts'],
     outfile: outFile
   })
 

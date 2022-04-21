@@ -3,7 +3,7 @@ import { searchbar } from "./searchbar";
 import searchbarPlugins from "./searchbarPlugins";
 import * as searchbarAutocomplete from "../util/autocomplete";
 
-const urlParser = require("../util/urlParser.js");
+import { urlParser } from "../util/urlParser";
 import { searchEngine } from "../util/searchEngine/renderer";
 import { tasks } from "../tabState";
 import { l } from "../../localization";

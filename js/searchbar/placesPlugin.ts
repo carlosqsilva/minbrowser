@@ -3,7 +3,7 @@ import { searchbar } from "./searchbar";
 import searchbarPlugins from "./searchbarPlugins";
 import * as searchbarUtils from "./searchbarUtils";
 import * as searchbarAutocomplete from "../util/autocomplete";
-const urlParser = require("../util/urlParser.js");
+import { urlParser } from "../util/urlParser";
 
 import { places } from "../places/places";
 import { searchEngine } from "../util/searchEngine/renderer";
@@ -110,9 +110,8 @@ function showSearchbarPlaceResults(
       // show a star for bookmarked items
       if (result.isBookmarked) {
         data.icon = "carbon:star-filled";
-      } 
+      }
 
-      
       // create the item
       if (didAutocompleteResult) {
         // if this exact URL was autocompleted, show the item as the top answer
@@ -135,12 +134,12 @@ function showSearchbarPlaceResults(
   searchbarPlugins.register("fullTextPlaces", {
     index: 2,
     trigger: (text) => !!text && text.indexOf("!") !== 0,
-    showResults: debounce((text, input, event) =>  {
+    showResults: debounce((text, input, event) => {
       if (
         searchbarPlugins.getResultCount("places") < 4 &&
         searchbar.associatedInput
       ) {
-        showSearchbarPlaceResults(text, input, event, "fullTextPlaces")
+        showSearchbarPlaceResults(text, input, event, "fullTextPlaces");
       } else {
         // can't show results, clear any previous ones
         searchbarPlugins.reset("fullTextPlaces");

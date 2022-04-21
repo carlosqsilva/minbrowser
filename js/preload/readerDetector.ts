@@ -11,7 +11,7 @@ function checkReaderStatus() {
 function pageIsReaderable() {
   const paragraphMap = new Map();
 
-  const paragraphs = document.querySelectorAll("p");
+  const paragraphs = Array.from(document.querySelectorAll("p"));
   let totalLength = 0;
 
   if (!paragraphs) {

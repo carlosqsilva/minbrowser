@@ -1,4 +1,4 @@
-const urlParser = require("./urlParser.js");
+import { urlParser, removeWWW } from "./urlParser";
 
 export function autocomplete(
   input: HTMLInputElement,
@@ -43,7 +43,8 @@ export function autocompleteURL(input, url) {
     // we start with the domain, including any non-standard ports (such as localhost:8080)
     hostname + (urlObj.port ? ":" + urlObj.port : ""),
     // if that doesn't match, try the hostname without the www instead. The regex requires a slash at the end, so we add one, run the regex, and then remove it
-    (hostname + "/").replace(urlParser.startingWWWRegex, "$1").replace("/", ""),
+    // (hostname + "/").replace(urlParser.startingWWWRegex, "$1").replace("/", ""),
+    removeWWW(hostname),
     // then try the whole URL
     urlParser.prettyURL(url),
     // then try the URL with querystring

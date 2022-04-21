@@ -3,11 +3,11 @@ import searchbarPlugins from "./searchbarPlugins";
 import * as searchbarUtils from "./searchbarUtils";
 import { registerCustomBang } from "./bangsPlugin";
 import { places } from "../places/places";
-const urlParser = require("../util/urlParser.js");
-const formatRelativeDate = require("../util/relativeDate.js");
+import { urlParser } from "../util/urlParser";
+import { formatRelativeDate } from "../util/relativeDate";
 
-const { ipcRenderer: ipc } = require("electron");
-const { l } = require("../../localization");
+import { ipcRenderer as ipc } from "electron";
+import { l } from "../../localization";
 
 (() => {
   registerCustomBang({

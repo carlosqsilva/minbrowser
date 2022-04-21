@@ -36,16 +36,16 @@ var currentAutocompleteList = null;
 // Creates an unlock button element.
 //
 // - input: Input element to 'attach' unlock button to.
-function createUnlockButton(input) {
-  var inputRect = input.getBoundingClientRect();
+function createUnlockButton(input: HTMLInputElement) {
+  const inputRect = input.getBoundingClientRect();
 
   // Container.
-  var unlockDiv = document.createElement("div");
+  const unlockDiv = document.createElement("div");
 
   // Style.
   unlockDiv.style.width = "20px";
   unlockDiv.style.height = "20px";
-  unlockDiv.style.zIndex = 999999999999999;
+  unlockDiv.style.zIndex = String(999999999999999);
 
   // Position.
   unlockDiv.style.position = "absolute";
@@ -60,17 +60,17 @@ function createUnlockButton(input) {
   // Button style.
   button.style.width = "20px";
   button.style.height = "20px";
-  button.style.opacity = 0.7;
+  button.style.opacity = String(0.7);
   button.style.color = window.getComputedStyle(input).color;
   button.style.transition = "0.1s color";
   button.innerHTML = keyIcon;
 
   // Button hover.
   button.addEventListener("mouseenter", () => {
-    button.style.opacity = 1.0;
+    button.style.opacity = String(1.0);
   });
   button.addEventListener("mouseleave", () => {
-    button.style.opacity = 0.7;
+    button.style.opacity = String(0.7);
   });
 
   // Click event.
@@ -105,7 +105,7 @@ function getBestInput(names, exclusionNames, types) {
   const allFields = [
     ...(document.querySelectorAll("form input") || []),
     ...(document.querySelectorAll("input") || []),
-  ];
+  ] as HTMLInputElement[];
   // this list includes duplicates, but we only use the first one we find that matches, so there's no need to dedupe
 
   for (const field of allFields) {
@@ -397,7 +397,7 @@ HTMLFormElement.prototype.submit = function () {
 }
 `);
 
-window.addEventListener("message", function (e) {
+window.addEventListener("message", (e) => {
   if (e.data && e.data.message && e.data.message === "formSubmit") {
     handleFormSubmit();
   }

@@ -3,13 +3,13 @@
 import { searchbar } from "./searchbar";
 import searchbarPlugins from "./searchbarPlugins";
 import * as searchbarUtils from "./searchbarUtils";
-const bangsPlugin = require("./bangsPlugin.js");
+import * as bangsPlugin from "./bangsPlugin";
 import { places } from "../places/places";
-const urlParser = require("../util/urlParser.js");
-const formatRelativeDate = require("../util/relativeDate.js");
+import { urlParser } from "../util/urlParser";
+import { formatRelativeDate } from "../util/relativeDate";
 
 import tabEditor from "../navbar/tabEditor";
-const bookmarkEditor = require("./bookmarkEditor.js");
+import { bookmarkEditor } from "./bookmarkEditor";
 
 import { l } from "../../localization";
 import { tasks } from "../tabState";
@@ -92,7 +92,7 @@ class BookmarkManager {
 
     const parsedText = parseBookmarkSearch(text);
 
-    var displayedURLset = [];
+    const displayedURLset = [];
     places.searchPlaces(
       parsedText.text,
       (results) => {
@@ -169,7 +169,7 @@ class BookmarkManager {
             .forEach((result, index) => {
               displayedURLset.push(result.url);
 
-              var thisRelativeDate = formatRelativeDate(result.lastVisit);
+              const thisRelativeDate = formatRelativeDate(result.lastVisit);
               if (thisRelativeDate !== lastRelativeDate) {
                 searchbarPlugins.addHeading("bangs", {
                   text: thisRelativeDate,
@@ -177,11 +177,11 @@ class BookmarkManager {
                 lastRelativeDate = thisRelativeDate;
               }
 
-              var itemData = getBookmarkListItemData(
+              const itemData = getBookmarkListItemData(
                 result,
                 index === 0 && parsedText.text
               );
-              var placeholder = lazyList.createPlaceholder();
+              const placeholder = lazyList.createPlaceholder();
               container.appendChild(placeholder);
               lazyList.lazyRenderItem(placeholder, itemData);
             });
@@ -212,12 +212,12 @@ class BookmarkManager {
                   text: l("bookmarksSimilarItems"),
                 });
                 suggestedResults
-                  .sort(function (a, b) {
+                  .sort((a, b) => {
                     // order by last visit
                     return b.lastVisit - a.lastVisit;
                   })
-                  .forEach(function (result, index) {
-                    var item = searchbarUtils.createItem(
+                  .forEach((result, index) => {
+                    const item = searchbarUtils.createItem(
                       getBookmarkListItemData(result, false)
                     );
                     container.appendChild(item);
