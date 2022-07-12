@@ -1,7 +1,8 @@
 /* Simple input prompt. */
 import { BrowserWindow, ipcMain as ipc } from "electron";
-import {getMainWindow} from "./window"
-import settings from "../js/util/settings/settingsMain"
+import { getMainWindow } from "./window";
+// import settings from "../js/util/settings/settingsMain";
+import { localStorage } from "./localStorage";
 
 let promptAnswer: string;
 let promptOptions: Record<string, any>;
@@ -39,26 +40,26 @@ export function createPrompt(options, callback) {
   });
 }
 
-ipc.on("show-prompt", function (options, callback) {
+ipc.on("show-prompt", (options, callback) => {
   createPrompt(options, callback);
 });
 
-ipc.on("open-prompt", function (event) {
+ipc.on("open-prompt", (event) => {
   event.returnValue = JSON.stringify({
     label: promptOptions.text,
     ok: promptOptions.ok,
     values: promptOptions.values,
     cancel: promptOptions.cancel,
-    darkMode: settings.get("darkMode"),
+    darkMode: localStorage.getItem("darkMode", false),
   });
 });
 
-ipc.on("close-prompt", function (event, data) {
+ipc.on("close-prompt", (event, data) => {
   promptAnswer = data;
 });
 
-ipc.on("prompt", function (event, data) {
-  createPrompt(data, function (result) {
+ipc.on("prompt", (event, data) => {
+  createPrompt(data, (result) => {
     event.returnValue = result;
   });
 });

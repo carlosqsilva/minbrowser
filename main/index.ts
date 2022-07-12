@@ -1,9 +1,10 @@
 import { app, ipcMain as ipc } from "electron";
-import settings from "../js/util/settings/settingsMain";
 import { destroyAllViews } from "./viewManager";
 import { createApp, getMainWindow, sendIPCToWindow } from "./window";
 import { createAppMenu, createDockMenu } from "./menu";
+import { localStorage } from "./localStorage";
 
+let appIsReady = false;
 // workaround for flicker when focusing app (https://github.com/electron/electron/issues/17942)
 app.commandLine.appendSwitch("disable-backgrounding-occluded-windows", "true");
 
@@ -14,7 +15,6 @@ if (!isFirstInstance) {
   process.exit(0);
 }
 
-let appIsReady = false;
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
@@ -27,8 +27,8 @@ app.on("window-all-closed", () => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on("ready", () => {
-  settings.set("restartNow", false);
+app.on("ready", async () => {
+  await localStorage.ready();
   appIsReady = true;
 
   createApp((mainWindow) => {

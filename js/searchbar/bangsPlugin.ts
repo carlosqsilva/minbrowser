@@ -219,52 +219,52 @@ function getBangSearchResults(text, input, event) {
 }
 
 (() => {
-  searchbarPlugins.register("bangs", {
-    index: 1,
-    trigger: (text: string) => {
-      return !!text && text.indexOf("!") === 0;
-    },
-    showResults: getBangSearchResults,
-  });
+  // searchbarPlugins.register("bangs", {
+  //   index: 1,
+  //   trigger: (text: string) => {
+  //     return !!text && text.indexOf("!") === 0;
+  //   },
+  //   showResults: getBangSearchResults,
+  // });
 
-  searchbarPlugins.registerURLHandler((url) => {
-    if (url.indexOf("!") === 0) {
-      incrementBangCount(url.split(" ")[0]);
+  // searchbarPlugins.registerURLHandler((url) => {
+  //   if (url.indexOf("!") === 0) {
+  //     incrementBangCount(url.split(" ")[0]);
 
-      const bang = getCustomBang(url);
+  //     const bang = getCustomBang(url);
 
-      if (
-        (!bang || !bang.isAction) &&
-        url.split(" ").length === 1 &&
-        !url.endsWith(" ")
-      ) {
-        // the bang is non-custom or a custom bang that requires search text, so add a space after it
-        tabEditor.show(tasks.tabs.getSelected(), url + " ");
-        return true;
-      } else if (bang) {
-        // there is a custom bang that is an action or has search text, so it can be run
-        tabEditor.hide();
-        bang.fn(url.replace(bang.phrase, "").trimLeft());
-        return true; // override the default action
-      }
-    }
-  });
+  //     if (
+  //       (!bang || !bang.isAction) &&
+  //       url.split(" ").length === 1 &&
+  //       !url.endsWith(" ")
+  //     ) {
+  //       // the bang is non-custom or a custom bang that requires search text, so add a space after it
+  //       tabEditor.show(tasks.tabs.getSelected(), url + " ");
+  //       return true;
+  //     } else if (bang) {
+  //       // there is a custom bang that is an action or has search text, so it can be run
+  //       tabEditor.hide();
+  //       bang.fn(url.replace(bang.phrase, "").trimLeft());
+  //       return true; // override the default action
+  //     }
+  //   }
+  // });
 
-  const savedBangs = settings.get("customBangs");
-  if (savedBangs) {
-    savedBangs.forEach((bang) => {
-      if (!bang.phrase || !bang.redirect) return;
-      registerCustomBang({
-        phrase: `!${bang.phrase}`,
-        snippet: `${bang.snippet}` ?? "",
-        // isAction: true - skip search text entry if the bang does not include a search parameter
-        isAction: !bang.redirect.includes("%s"),
-        fn: (text: string) => {
-          searchbar.openURL(
-            bang.redirect.replace("%s", encodeURIComponent(text))
-          );
-        },
-      });
-    });
-  }
+  // const savedBangs = settings.get("customBangs");
+  // if (savedBangs) {
+  //   savedBangs.forEach((bang) => {
+  //     if (!bang.phrase || !bang.redirect) return;
+  //     registerCustomBang({
+  //       phrase: `!${bang.phrase}`,
+  //       snippet: `${bang.snippet}` ?? "",
+  //       // isAction: true - skip search text entry if the bang does not include a search parameter
+  //       isAction: !bang.redirect.includes("%s"),
+  //       fn: (text: string) => {
+  //         searchbar.openURL(
+  //           bang.redirect.replace("%s", encodeURIComponent(text))
+  //         );
+  //       },
+  //     });
+  //   });
+  // }
 })();

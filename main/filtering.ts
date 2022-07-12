@@ -3,9 +3,9 @@
 import fs from "fs";
 import path from "path";
 import { app, Response, Session, session, webContents } from "electron";
-
-import settings from "../js/util/settings/settingsMain";
-import { OnBeforeRequestListenerDetails } from "electron/main";
+import type { OnBeforeRequestListenerDetails } from "electron";
+// import settings from "../js/util/settings/settingsMain";
+import { localStorage } from "./localStorage";
 
 interface FilteringSettings {
   blockingLevel: 0 | 1 | 2;
@@ -66,8 +66,11 @@ let unsavedBlockedRequests = 0;
 
 setInterval(() => {
   if (unsavedBlockedRequests > 0) {
-    const current = settings.get("filteringBlockedCount") ?? 0;
-    settings.set("filteringBlockedCount", current + unsavedBlockedRequests);
+    const currentCount = localStorage.getItem("filteringBlockedCount", 0);
+    localStorage.setItem(
+      "filteringBlockedCount",
+      currentCount + unsavedBlockedRequests
+    );
     unsavedBlockedRequests = 0;
   }
 }, 60000);
@@ -295,6 +298,8 @@ app.once("ready", () => {
 
 app.on("session-created", registerFiltering);
 
-settings.listen("filtering", (value) => {
-  setFilteringSettings(value);
+localStorage.onReady((storage) => {
+  storage.listen("filtering", (value) => {
+    setFilteringSettings(value);
+  });
 });

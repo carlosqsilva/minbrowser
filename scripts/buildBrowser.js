@@ -6,8 +6,6 @@ const { solidPlugin } = require("./esbuild-solid-plugin");
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {
   bundle: true,
-  // minify: true,
-  keepNames: true,
   metafile: true,
   platform: "node",
   external: ["electron"],
@@ -28,40 +26,42 @@ function printOutput(result) {
   });
 }
 
-async function bundleRendererFiles(entryPoint, outputFile) {
+async function bundleRendererFiles(entryPoint, outputFile, minify = false) {
   const result = await esbuild.build({
     ...defaultConfig,
+    minify,
     outfile: outputFile,
     entryPoints: [entryPoint],
   });
   printOutput(result);
 }
 
-async function bundlePageFiles(entryPoint, outputFile) {
+async function bundlePageFiles(entryPoint, outputFile, minify = false) {
   const result = await esbuild.build({
     ...pageConfig,
+    minify,
     outfile: outputFile,
     entryPoints: [entryPoint],
   });
   printOutput(result);
 }
 
-function build() {
+function build({ minify = false }) {
   // build browser interface
   const browserOutputFile = path.resolve(__dirname, "../dist/bundle.js");
-  bundleRendererFiles("./js/index.ts", browserOutputFile);
+  bundleRendererFiles("./js/index.ts", browserOutputFile, minify);
 
   // build settings page
   const settingsOutputFile = path.resolve(__dirname, "../dist/settings.js");
-  bundlePageFiles("./pages/settings/settings.tsx", settingsOutputFile);
+  bundlePageFiles("./pages/settings/settings.tsx", settingsOutputFile, minify);
 
   // build error page
   const errorOutputFile = path.resolve(__dirname, "../dist/error.js");
-  bundlePageFiles("./pages/error/error.tsx", errorOutputFile);
+  bundlePageFiles("./pages/error/error.tsx", errorOutputFile, minify);
 
   // build reader page
   const readerOutputFile = path.resolve(__dirname, "../dist/reader.js");
-  bundlePageFiles("./reader/reader.tsx", readerOutputFile);
+  bundlePageFiles("./reader/reader.tsx", readerOutputFile, minify);
 }
 
 if (module.parent) {

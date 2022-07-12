@@ -1,6 +1,6 @@
 /*
-    downloads and parses the full list from tranco-list.eu in order to get the
-    top sites available for HTTPS upgrade
+  downloads and parses the full list from tranco-list.eu in order to get the
+  top sites available for HTTPS upgrade
 */
 const https = require('https')
 const fs = require('fs')

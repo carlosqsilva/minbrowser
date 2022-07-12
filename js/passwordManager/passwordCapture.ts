@@ -1,5 +1,3 @@
-// @ts-check
-
 import webviews from "../webviews";
 import settings from "../util/settings/settings";
 import PasswordManagers from "./passwordManager";
@@ -101,6 +99,7 @@ class PasswordCapture {
         var alreadyExists = credentials.some(
           (cred) => cred.username === username && cred.password === password
         );
+
         if (!alreadyExists) {
           if (!this.bar.hidden) {
             this.hideCaptureBar();
@@ -117,7 +116,10 @@ class PasswordCapture {
     this.usernameInput.placeholder = l("username");
     this.passwordInput.placeholder = l("password");
 
-    webviews.bindIPC("password-form-filled", this.handleRecieveCredentials);
+    webviews.bindIPC(
+      "password-form-filled",
+      this.handleRecieveCredentials.bind(this)
+    );
 
     this.saveButton.addEventListener("click", () => {
       if (
@@ -146,8 +148,11 @@ class PasswordCapture {
       this.hideCaptureBar();
     });
 
-    this.closeButton.addEventListener("click", this.hideCaptureBar);
-    this.revealButton.addEventListener("click", this.togglePasswordVisibility);
+    this.closeButton.addEventListener("click", this.hideCaptureBar.bind(this));
+    this.revealButton.addEventListener(
+      "click",
+      this.togglePasswordVisibility.bind(this)
+    );
 
     // the bar can change height when the window is resized, so the webview needs to be resized in response
     window.addEventListener("resize", () => {

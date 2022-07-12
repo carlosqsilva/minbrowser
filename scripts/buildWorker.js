@@ -1,18 +1,18 @@
-const path = require("path")
-const esbuild = require("esbuild")
+const path = require("path");
+const esbuild = require("esbuild");
 
-const outfile = path.resolve(__dirname, "../dist/placesWorker.js")
+const outfile = path.resolve(__dirname, "../dist/placesWorker.js");
 
-async function build() {
+async function build({ minify = false }) {
   const result = await esbuild.build({
     outfile,
+    minify,
     bundle: true,
-    minify: true,
     keepNames: true,
     metafile: true,
     platform: "browser",
     external: ["electron"],
-    entryPoints: ['./js/places/places.worker.ts'],
+    entryPoints: ["./js/ui/places/places.worker.ts"],
   });
 
   const output = result?.metafile?.outputs || {};

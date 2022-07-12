@@ -1,12 +1,10 @@
-// @ts-check
-
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 
 import webviews from "../webviews";
 // import * as  keybindings from '../keybindings'
 // var urlParser = require("../util/urlParser.js");
 import searchbarPlugins from "./searchbarPlugins";
-import keyboardNavigationHelper from "../util/keyboardNavigationHelper"
+import keyboardNavigationHelper from "../util/keyboardNavigationHelper";
 
 class Searchbar {
   public el = document.getElementById("searchbar") as HTMLDivElement;
@@ -24,16 +22,16 @@ class Searchbar {
     searchbarPlugins.clearAll();
   }
 
-  public getValue() {
-    const text = this.associatedInput?.value;
-    return text?.replace(
-      text.substring(
-        this.associatedInput?.selectionStart!,
-        this.associatedInput?.selectionEnd!
-      ),
-      ""
-    );
-  }
+  // public getValue() {
+  //   const text = this.associatedInput?.value;
+  //   return text?.replace(
+  //     text.substring(
+  //       this.associatedInput?.selectionStart!,
+  //       this.associatedInput?.selectionEnd!
+  //     ),
+  //     ""
+  //   );
+  // }
 
   public showResults(text: string, event?: any) {
     // find the real input value, accounting for highlighted suggestions and the key that was just pressed

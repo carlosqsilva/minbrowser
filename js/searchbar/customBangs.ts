@@ -4,7 +4,7 @@
 import fs from "fs";
 import { ipcRenderer as ipc } from "electron";
 
-import { l } from "../../localization";
+import { l } from "../../localization/view";
 import { Task, tasks } from "../tabState";
 import { registerCustomBang } from "./bangsPlugin";
 
@@ -12,9 +12,9 @@ import webviews from "../webviews";
 import * as browserUI from "../browserUI";
 import * as focusMode from "../focusMode";
 import { places } from "../places/places";
-var contentBlockingToggle = require("../navbar/contentBlockingToggle.js");
+import { contentBlockingToggle } from "../navbar/contentBlockingToggle";
 import taskOverlay from "../taskOverlay/taskOverlay";
-var bookmarkConverter = require("../bookmarkConverter.js");
+import bookmarkConverter from "../bookmarkConverter"
 
 (() => {
   registerCustomBang({
@@ -259,12 +259,15 @@ var bookmarkConverter = require("../bookmarkConverter.js");
     isAction: true,
     fn: async () => {
       const data = await bookmarkConverter.exportAll();
-      // save the result
-      const savePath = await ipc.invoke("showSaveDialog", {
-        defaultPath: "bookmarks.html",
-      });
 
-      fs.writeFileSync(savePath, data);
+      if (data) {
+        // save the result
+        const savePath = await ipc.invoke("showSaveDialog", {
+          defaultPath: "bookmarks.html",
+        });
+  
+        fs.writeFileSync(savePath, data);
+      }
     },
   });
 

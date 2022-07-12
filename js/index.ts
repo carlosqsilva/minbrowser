@@ -63,47 +63,10 @@ window.addEventListener("load", () => {
   );
 });
 
-import "./tabState";
-import "./util/settings/settings";
-import "./util/theme/renderer";
+import "./ui/store"
+import "./ui/browserUI"
+import "./ui/settings/settings";
+import "./ui/theme/renderer";
 
-import "./navbar/addTabButton";
-import "./navbar/tabActivity";
-import "./navbar/tabColor.js";
-import "./navbar/navigationButtons";
+import "./ui"
 
-import "./downloadManager";
-import "./webviewMenu";
-import "./contextMenu";
-import "./menuRenderer";
-import "./defaultKeybindings";
-import "./pdfViewer";
-import "./passwordManager/passwordManager";
-import "./passwordManager/passwordCapture";
-import "./passwordManager/passwordViewer";
-import "./taskOverlay/taskOverlay";
-import session from "./sessionRestore";
-import "./bookmarkConverter";
-import "./newTabPage";
-
-// default searchbar plugins
-
-import "./searchbar/searchbar";
-import "./searchbar/placesPlugin";
-import "./searchbar/instantAnswerPlugin";
-import "./searchbar/developmentModeNotification";
-import "./searchbar/openTabsPlugin";
-import "./searchbar/bangsPlugin";
-import "./searchbar/customBangs";
-import "./searchbar/searchSuggestionsPlugin";
-import "./searchbar/placeSuggestionsPlugin";
-import "./searchbar/restoreTaskPlugin";
-import "./searchbar/bookmarkManager";
-import "./searchbar/historyViewer";
-import "./searchbar/shortcutButtons";
-
-// once everything's loaded, start the session
-session.restore();
-
-
-// import "./ui"

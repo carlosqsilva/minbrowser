@@ -1,7 +1,6 @@
 import "../../js/util/theme/view";
 
 import { render } from "solid-js/web";
-import { createStore } from "solid-js/store";
 import { onMount } from "solid-js";
 
 import { l } from "../../localization/view";
@@ -318,36 +317,28 @@ if (errDesc === sslError) {
   url = url.replace("https://", "http://");
 }
 
-const [text, setText] = createStore({
-  title: "",
-  subtitle: "",
-  secondaryButton: {
-    hidden: true,
-    content: "",
-    onClick: () => {},
-  },
-});
+let title = "";
+let subtitle = "";
+let secondaryButton = {
+  hidden: true,
+  content: "",
+  onClick: () => {},
+};
 
 if (errDesc && errDesc.secondaryAction) {
-  setText("secondaryButton", {
-    hidden: false,
-    content: errDesc.secondaryAction.title,
-    onClick: () => {
-      window.location.assign(errDesc.secondaryAction.url);
-    },
-  });
+  secondaryButton.hidden = false;
+  secondaryButton.content = errDesc.secondaryAction.title;
+  secondaryButton.onClick = () => {
+    window.location.assign(errDesc.secondaryAction.url);
+  };
 }
 
 if (errDesc) {
-  setText({
-    title: errDesc.name || "",
-    subtitle: errDesc.message || "",
-  });
+  title = errDesc.name || "";
+  subtitle = errDesc.message || "";
 } else {
-  setText({
-    title: l("genericError"),
-    subtitle: (errorCodes[ec] || "") + " (" + ec + ")",
-  });
+  title = l("genericError");
+  subtitle = (errorCodes[ec] || "") + " (" + ec + ")";
 }
 
 function App() {
@@ -359,16 +350,16 @@ function App() {
 
   return (
     <>
-      <h1 id="error-name">{text.title}</h1>
-      <h2 id="error-desc">{text.subtitle}</h2>
+      <h1 id="error-name">{title}</h1>
+      <h2 id="error-desc">{subtitle}</h2>
 
       <button
         id="secondary-button"
         class="secondary-button"
-        onclick={text.secondaryButton.onClick}
-        hidden={text.secondaryButton.hidden}
+        onclick={secondaryButton.onClick}
+        hidden={secondaryButton.hidden}
       >
-        {text.secondaryButton.content}
+        {secondaryButton.content}
       </button>
 
       <button

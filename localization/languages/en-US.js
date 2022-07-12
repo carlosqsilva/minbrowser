@@ -72,7 +72,7 @@ module.exports = {
       unsafeHTML: "Task deleted. <a>Undo?</a>",
     },
     tasksSearchTabs: "Search tabs",
-    returnToTask: "Return to your previous task",
+    returnToSession: "Return to your previous session",
     taskDescriptionTwo: "%t and %t", //used to describe a task that has two tabs, %t is replaced with the tab titles
     taskDescriptionThree: "%t, %t, and %n more", //used to describe a task that has three or more tabs
     /* find in page toolbar */

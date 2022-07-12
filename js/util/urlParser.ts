@@ -55,7 +55,7 @@ export const urlParser = {
   isURLMissingProtocol: function (url) {
     return !urlParser.protocolRegex.test(url);
   },
-  parse: function (url) {
+  parse: function (url: string): string {
     url = url.trim(); // remove whitespace common on copy-pasted url's
 
     if (!url) {
@@ -71,8 +71,8 @@ export const urlParser = {
     // if the URL is an internal URL, convert it to the correct file:// url
     if (url.startsWith("min:")) {
       try {
-        var urlObj = new URL(url);
-        var pathname = urlObj.pathname.replace("//", "");
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.replace("//", "");
         if (/^[a-zA-Z]+$/.test(pathname)) {
           // only paths with letters are allowed
           return urlParser.getFileURL(

@@ -1,22 +1,20 @@
-const path = require('path')
-const esbuild = require("esbuild")
-const nativeModulePlugin = require("./esbuild-native-module-plugin")
-const outFile = path.resolve(__dirname, '../main.build.js')
+const path = require("path");
+const esbuild = require("esbuild");
+const nativeModulePlugin = require("./esbuild-native-module-plugin");
+const outFile = path.resolve(__dirname, "../main.build.js");
 
-async function buildWithEsbuild() {
+async function buildWithEsbuild({ minify = false }) {
   const result = await esbuild.build({
+    minify,
     bundle: true,
-    minify: false,
     keepNames: true,
     metafile: true,
     outfile: outFile,
     platform: "node",
     external: ["electron"],
-    entryPoints: ['./main/index.js'],
-    plugins: [
-      nativeModulePlugin
-    ]
-  })
+    entryPoints: ["./main/index.js"],
+    plugins: [nativeModulePlugin],
+  });
 
   const output = result?.metafile?.outputs || {};
 
@@ -28,7 +26,7 @@ async function buildWithEsbuild() {
 }
 
 if (module.parent) {
-  module.exports = buildWithEsbuild
+  module.exports = buildWithEsbuild;
 } else {
-  buildWithEsbuild()
+  buildWithEsbuild();
 }

@@ -4,8 +4,9 @@ import fs from "fs";
 import path from "path";
 import { safeStorage, app, ipcMain as ipc } from "electron";
 
-import keytar from "keytar" 
-import settings from "../js/util/settings/settingsMain";
+import keytar from "keytar";
+// import settings from "../js/util/settings/settingsMain";
+import { localStorage } from "./localStorage";
 
 const passwordFilePath = path.join(app.getPath("userData"), "passwordStore");
 
@@ -96,7 +97,7 @@ ipc.handle("credentialStoreGetCredentials", async () => {
 /* On startup, migrate everything from keychain */
 
 setTimeout(() => {
-  if (!settings.get("v1_23_keychainMigrationComplete")) {
+  if (!localStorage.getItem("v1_23_keychainMigrationComplete", false)) {
     keytar.findCredentials("Min saved password").then((results) => {
       results.forEach((result) => {
         credentialStoreSetPassword({
@@ -105,7 +106,7 @@ setTimeout(() => {
           password: result.password,
         });
       });
-      settings.set("v1_23_keychainMigrationComplete", true);
+      localStorage.setItem("v1_23_keychainMigrationComplete", true);
     });
   }
 }, 5000);

@@ -1,7 +1,7 @@
 import debounce from "lodash.debounce";
 
 import searchbarPlugins from "./searchbarPlugins";
-const urlParser = require("../util/urlParser.js");
+import { urlParser } from "../util/urlParser";
 import { searchEngine } from "../util/searchEngine/renderer";
 import { tasks } from "../tabState";
 
@@ -39,13 +39,13 @@ function showSearchSuggestions(text, input, event) {
           const data = {
             title: result,
             url: result,
-            icon: "carbon:search"
+            icon: "carbon:search",
           };
 
           if (urlParser.isPossibleURL(result)) {
             // website suggestions
             data.icon = "carbon:earth-filled";
-          } 
+          }
 
           searchbarPlugins.addResult("searchSuggestions", data);
         });
@@ -53,7 +53,7 @@ function showSearchSuggestions(text, input, event) {
     });
 }
 
-(function initialize() {
+(() => {
   searchbarPlugins.register("searchSuggestions", {
     index: 4,
     trigger: (text) => {
@@ -65,4 +65,4 @@ function showSearchSuggestions(text, input, event) {
     },
     showResults: debounce(showSearchSuggestions, 50),
   });
-})()
+})();

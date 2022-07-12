@@ -2,30 +2,30 @@
 
 import { ipcRenderer as ipc } from "electron";
 
-const propertiesToClone = [
-  "deltaX",
-  "deltaY",
-  "metaKey",
-  "ctrlKey",
-  "defaultPrevented",
-  "clientX",
-  "clientY",
-];
+// const propertiesToClone = [
+//   "deltaX",
+//   "deltaY",
+//   "metaKey",
+//   "ctrlKey",
+//   "defaultPrevented",
+//   "clientX",
+//   "clientY",
+// ];
 
-function cloneEvent(e) {
-  const obj = {};
-  for (const prop of propertiesToClone) {
-    obj[prop] = e[prop];
-  }
-  return JSON.stringify(obj);
-}
+// function cloneEvent(e) {
+//   const obj = {};
+//   for (const prop of propertiesToClone) {
+//     obj[prop] = e[prop];
+//   }
+//   return JSON.stringify(obj);
+// }
 
 // workaround for Electron bug
 setTimeout(() => {
   /* Used for swipe gestures */
-  window.addEventListener("wheel", (e) => {
-    ipc.send("wheel-event", cloneEvent(e));
-  });
+  // window.addEventListener("wheel", (e) => {
+  //   ipc.send("wheel-event", cloneEvent(e));
+  // });
 
   let scrollTimeout = null;
 

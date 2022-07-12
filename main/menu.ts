@@ -7,25 +7,10 @@ import type {
 } from "electron";
 import { app, Menu, webContents } from "electron";
 
-import settings from "../js/util/settings/settingsMain";
+// import settings from "../js/util/settings/settingsMain";
 import { destroyAllViews } from "./viewManager";
 import { getMainWindow, sendIPCToWindow } from "./window";
 import { l } from "../localization";
-
-function getFormattedKeyMapEntry(keybinding: string): string | undefined {
-  const value = settings.get("keyMap")?.[keybinding];
-
-  if (value) {
-    if (Array.isArray(value)) {
-      // value is array if multiple entries are set
-      return value[0].replace("mod", "CmdOrCtrl");
-    } else {
-      return value.replace("mod", "CmdOrCtrl");
-    }
-  }
-
-  return undefined;
-}
 
 export function createAppMenu() {
   function openTabInWindow(url: string) {
@@ -36,7 +21,7 @@ export function createAppMenu() {
 
   const quitAction: Partial<MenuItem> = {
     label: l("appMenuQuit").replace("%n", app.name),
-    accelerator: getFormattedKeyMapEntry("quitMin") || "CmdOrCtrl+Q",
+    accelerator: "CmdOrCtrl+Q",
     click: (_item, _window, event: KeyboardEvent) => {
       if (!event.triggeredByAccelerator) {
         app.quit();
@@ -170,18 +155,18 @@ export function createAppMenu() {
             // otherwise, this event will be handled in the main window
           },
         },
-        {
-          label: l("appMenuAlwaysOnTop"),
-          type: "checkbox",
-          checked: settings.get("windowAlwaysOnTop") || false,
-          click: (item: MenuItem) => {
-            const mainWindow = getMainWindow();
-            if (mainWindow) {
-              mainWindow.setAlwaysOnTop(item.checked);
-            }
-            settings.set("windowAlwaysOnTop", item.checked);
-          },
-        },
+        // {
+        //   label: l("appMenuAlwaysOnTop"),
+        //   type: "checkbox",
+        //   checked: settings.get("windowAlwaysOnTop") || false,
+        //   click: (item: MenuItem) => {
+        //     const mainWindow = getMainWindow();
+        //     if (mainWindow) {
+        //       mainWindow.setAlwaysOnTop(item.checked);
+        //     }
+        //     settings.set("windowAlwaysOnTop", item.checked);
+        //   },
+        // },
         {
           type: "separator",
         },

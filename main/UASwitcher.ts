@@ -1,20 +1,31 @@
 import type { Session } from "electron";
 import { app, session } from "electron";
-import settings from "../js/util/settings/settingsMain";
+import { localStorage } from "./localStorage";
+// import settings from "../js/util/settings/settingsMain";
+// import { getLocalStorage } from "./localStorage";
 
 /* Use the same user agent as Chrome to improve site compatibility and increase fingerprinting resistance
 see https://github.com/minbrowser/min/issues/657 for more information */
 
-// const defaultUserAgent = app.userAgentFallback;
-let useCustomUserAgent = settings.get("useCustomUserAgent") ?? false;
+let useCustomUserAgent = false;
 
-if (useCustomUserAgent) {
-  app.userAgentFallback = (
-    settings.get("customUserAgent") ?? app.userAgentFallback
-  )
+localStorage.onReady((storage) => {
+  let userAgent = app.userAgentFallback;
+  useCustomUserAgent = storage.getItem("useCustomUserAgent", false);
+  if (useCustomUserAgent) {
+    userAgent = storage.getItem("customUserAgent", app.userAgentFallback);
+  }
+
+  app.userAgentFallback = userAgent
     .replace(/Min\/\S+\s/, "")
     .replace(/Electron\/\S+\s/, "");
-}
+});
+
+app.once("ready", () => {
+  enableGoogleUASwitcher(session.defaultSession);
+});
+
+app.on("session-created", enableGoogleUASwitcher);
 
 function getFirefoxUA() {
   /*
@@ -33,7 +44,7 @@ function getFirefoxUA() {
 Google blocks signin in some cases unless a custom UA is used
 see https://github.com/minbrowser/min/issues/868
 */
-export function enableGoogleUASwitcher(session: Session) {
+function enableGoogleUASwitcher(session: Session) {
   session.webRequest.onBeforeSendHeaders((details, callback) => {
     if (!useCustomUserAgent && details.url.includes("accounts.google.com")) {
       const url = new URL(details.url);
@@ -52,9 +63,3 @@ export function enableGoogleUASwitcher(session: Session) {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 }
-
-app.once("ready", () => {
-  enableGoogleUASwitcher(session.defaultSession);
-});
-
-app.on("session-created", enableGoogleUASwitcher);

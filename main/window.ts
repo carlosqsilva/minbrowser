@@ -1,14 +1,22 @@
-// @ts-check
-
-import fs from "fs";
-import path from "path";
-import type { Rectangle } from "electron";
 import { BrowserWindow, app, screen } from "electron";
-import { isDevelopment } from "./environment";
-import settings from "../js/util/settings/settingsMain";
 
-let mainWindow: BrowserWindow | null;
+import { isDevelopment } from "./environment";
+import { localStorage } from "./localStorage";
+
+interface Bounds {
+  height?: number;
+  width?: number;
+  x?: number;
+  y?: number;
+}
+
 const browserPage = `file://${__dirname}/index.html`;
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
+const MINIMUM_WIDTH = 500;
+const MINIMUM_HEIGHT = 400;
+
+let mainWindow: BrowserWindow | null = null;
 
 export function getMainWindow() {
   return mainWindow;
@@ -19,28 +27,44 @@ export function destroyMainWindow() {
 }
 
 export async function createMainWindow() {
-  const userDataPath = app.getPath("userData");
-  const bounds = await getWindowBounds(userDataPath);
+  const { bounds, fullscreen, maximize } = getWindowBounds();
+  const { x, y, width, height } = bounds;
+
+  let isVisibleOnAnyDisplay = true;
+
+  for (const d of screen.getAllDisplays()) {
+    const isVisibleOnDisplay =
+      x >= d.bounds.x &&
+      y >= d.bounds.y &&
+      x + width <= d.bounds.x + d.bounds.width &&
+      y + height <= d.bounds.y + d.bounds.height;
+
+    if (!isVisibleOnDisplay) {
+      isVisibleOnAnyDisplay = false;
+    }
+  }
 
   mainWindow = new BrowserWindow({
-    width: bounds.width,
-    height: bounds.height,
-    x: bounds.x,
-    y: bounds.y,
-    minWidth: 320, // controls take up more horizontal space on Windows
-    minHeight: 350,
+    x: isVisibleOnAnyDisplay ? x : undefined,
+    y: isVisibleOnAnyDisplay ? y : undefined,
+    width: width || DEFAULT_WIDTH,
+    height: height || DEFAULT_HEIGHT,
+    minWidth: MINIMUM_WIDTH,
+    minHeight: MINIMUM_HEIGHT,
+    fullscreen: fullscreen,
+    fullscreenable: true,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 12, y: 10 },
     icon: __dirname + "/icons/icon256.png",
-    frame: settings.get("useSeparateTitlebar"),
-    alwaysOnTop: settings.get("windowAlwaysOnTop"),
+    // frame: settings.get("useSeparateTitlebar"),
+    // alwaysOnTop: settings.get("windowAlwaysOnTop"),
     backgroundColor: "#fff", // the value of this is ignored, but setting it seems to work around https://github.com/electron/electron/issues/10559
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       nodeIntegrationInWorker: true, // used by ProcessSpawner
       additionalArguments: [
-        "user-data-path=" + userDataPath,
+        "user-data-path=" + app.getPath("userData"),
         "app-version=" + app.getVersion(),
         "app-name=" + app.getName(),
         ...(isDevelopment() ? ["development-mode"] : []),
@@ -48,15 +72,15 @@ export async function createMainWindow() {
     },
   });
 
-  mainWindow.on("close", () => {
-    // save the window size for the next launch of the app
-    if (mainWindow) {
-      fs.writeFileSync(
-        path.join(userDataPath, "windowBounds.json"),
-        JSON.stringify(mainWindow.getBounds())
-      );
-    }
-  });
+  if (maximize) {
+    mainWindow.maximize();
+  }
+
+  mainWindow?.on("resize", () => saveWindowBounds());
+  mainWindow?.on("maximize", () => saveWindowBounds());
+  mainWindow?.on("unmaximize", () => saveWindowBounds());
+  mainWindow?.on("move", () => saveWindowBounds());
+  mainWindow.on("close", () => saveWindowBounds());
 
   return mainWindow;
 }
@@ -64,7 +88,7 @@ export async function createMainWindow() {
 export async function createApp(cb?: (window: BrowserWindow) => void) {
   const mainWindow = await createMainWindow();
 
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   // and load the index.html of the app.
   mainWindow.loadURL(browserPage);
@@ -109,7 +133,8 @@ export async function createApp(cb?: (window: BrowserWindow) => void) {
     sendIPCToWindow("leave-html-full-screen");
   });
 
-  // prevent remote pages from being loaded using drag-and-drop, since they would have node access
+  // prevent remote pages from being loaded using drag-and-drop,
+  // since they would have node access
   mainWindow.webContents.on("will-navigate", (e: Event, url: string) => {
     if (url !== browserPage) e.preventDefault();
   });
@@ -130,59 +155,27 @@ export function sendIPCToWindow(action: string, data?: any) {
   }
 }
 
-function getWindowBounds(userPath: string): Promise<Rectangle> {
-  return new Promise((resolve) => {
-    fs.readFile(
-      path.join(userPath, "windowBounds.json"),
-      "utf-8",
-      (e, data) => {
-        let bounds;
-
-        if (data) {
-          try {
-            bounds = JSON.parse(data);
-          } catch (e) {
-            console.warn("error parsing window bounds file: ", e);
-          }
-        }
-
-        if (e || !data || !bounds) {
-          // there was an error, probably because the file doesn't exist
-          const screenBounds = screen.getPrimaryDisplay().bounds;
-          const width = 800;
-          const height = 600;
-          bounds = {
-            width,
-            height,
-            x: Math.ceil(screenBounds.x + (screenBounds.width - width) / 2),
-            y: Math.ceil(screenBounds.y + (screenBounds.height - height) / 2),
-          };
-        }
-
-        // make the bounds fit inside a currently-active screen
-        // (since the screen Min was previously open on could have been removed)
-        // see: https://github.com/minbrowser/min/issues/904
-        const containingRect = screen.getDisplayMatching(bounds).workArea;
-
-        resolve({
-          x: clamp(
-            bounds.x,
-            containingRect.x,
-            containingRect.x + containingRect.width - bounds.width
-          ),
-          y: clamp(
-            bounds.y,
-            containingRect.y,
-            containingRect.y + containingRect.height - bounds.height
-          ),
-          width: clamp(bounds.width, 0, containingRect.width),
-          height: clamp(bounds.height, 0, containingRect.height),
-        });
-      }
-    );
-  });
+function getWindowBounds(): {
+  bounds: Bounds;
+  fullscreen: boolean;
+  maximize: boolean;
+} {
+  return {
+    bounds: localStorage.getItem("bounds", {}),
+    maximize: localStorage.getItem("fullscreen", false),
+    fullscreen: localStorage.getItem("maximize", false),
+  };
 }
 
-function clamp(n: number, min: number, max: number) {
-  return Math.max(Math.min(n, max), min);
+function saveWindowBounds() {
+  const [window] = BrowserWindow.getAllWindows();
+  if (!window) return;
+
+  if (!window.isFullScreen()) {
+    localStorage.setItem("bounds", mainWindow.getBounds());
+    localStorage.setItem("maximize", mainWindow.isMaximized());
+    localStorage.setItem("fullscreen", false);
+  } else {
+    localStorage.setItem("fullscreen", true);
+  }
 }

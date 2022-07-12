@@ -1,4 +1,7 @@
-/* downloads the latest version of easyList and easyPrivacy, removes element hiding rules, and saves them to ext/filterLists/easylist+easyprivacy-noelementhiding.txt */
+/* 
+downloads the latest version of easyList and easyPrivacy, removes element hiding rules, 
+and saves them to ext/filterLists/easylist+easyprivacy-noelementhiding.txt 
+*/
 
 const https = require('https')
 const fs = require('fs')

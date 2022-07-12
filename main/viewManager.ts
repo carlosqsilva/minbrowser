@@ -1,5 +1,3 @@
-// @ts-check
-
 import {
   BrowserView,
   ipcMain as ipc,
@@ -10,13 +8,23 @@ import {
   WebContents,
 } from "electron";
 
-import settings from "../js/util/settings/settingsMain";
 import { createPrompt } from "./prompt";
 import { l } from "../localization";
 import { getMainWindow } from "./window";
 // import { filterPopups } from "./filtering";
 
-const viewMap = {}; // id: view
+const knownProtocols = new Set([
+  "http",
+  "https",
+  "file",
+  "min",
+  "about",
+  "data",
+  "javascript",
+  "chrome",
+]);
+
+const viewMap: Record<string, BrowserView> = {}; // id: view
 const viewStateMap = {}; // id: view state
 let selectedView = null;
 
@@ -35,9 +43,7 @@ const defaultViewWebPreferences: WebPreferences = {
   // allowPopups: false,
   // partition: partition || 'persist:webcontent',
   enableWebSQL: false,
-  autoplayPolicy: settings.get("enableAutoplay")
-    ? "no-user-gesture-required"
-    : "user-gesture-required",
+  autoplayPolicy: "user-gesture-required",
   // match Chrome's default for anti-fingerprinting purposes (Electron defaults to 0)
   minimumFontSize: 6,
 };
@@ -143,7 +149,7 @@ function createView(
   //     const popupId = Math.random().toString();
   //     temporaryPopupViews[popupId] = view;
 
-  //     mainWindow?.webContents.send("view-event", {
+  //     getMainWindow().webContents.send("view-event", {
   //       viewId: id,
   //       event: "did-create-popup",
   //       args: [popupId, url],
@@ -194,7 +200,6 @@ function createView(
   );
 
   // show an "open in app" prompt for external protocols
-
   function handleExternalProtocol(
     e,
     url,
@@ -203,30 +208,18 @@ function createView(
     frameProcessId,
     frameRoutingId
   ) {
-    var knownProtocols = [
-      "http",
-      "https",
-      "file",
-      "min",
-      "about",
-      "data",
-      "javascript",
-      "chrome",
-    ]; // TODO anything else?
-    if (!knownProtocols.includes(url.split(":")[0])) {
-      var externalApp = app.getApplicationNameForProtocol(url);
+    if (!knownProtocols.has(url.split(":")[0])) {
+      const externalApp = app.getApplicationNameForProtocol(url);
       if (externalApp) {
         // TODO find a better way to do this
         // (the reason to use executeJS instead of the Electron dialog API is so we get the "prevent this page from creating additional dialogs" checkbox)
-        var sanitizedName = externalApp.replace(/[^a-zA-Z0-9.]/g, "");
+        const sanitizedName = externalApp.replace(/[^a-zA-Z0-9.]/g, "");
         if (view.webContents.getURL()) {
           view.webContents
             .executeJavaScript(
-              'confirm("' +
-                l("openExternalApp").replace("%s", sanitizedName) +
-                '")'
+              `confirm('${l("openExternalApp").replace("%s", sanitizedName)}')`
             )
-            .then(function (result) {
+            .then((result) => {
               if (result === true) {
                 shell.openExternal(url);
               }
@@ -234,7 +227,7 @@ function createView(
         } else {
           // the code above tries to show the dialog in a browserview, but if the view has no URL, this won't work.
           // so show the dialog globally as a fallback
-          var result = dialog.showMessageBoxSync({
+          const result = dialog.showMessageBoxSync({
             type: "question",
             buttons: ["OK", "Cancel"],
             message: l("openExternalApp")
@@ -265,7 +258,7 @@ function createView(
   return view;
 }
 
-function destroyView(id) {
+const destroyView = (id: string) => {
   if (!viewMap[id]) {
     return;
   }
@@ -276,36 +269,40 @@ function destroyView(id) {
     mainWindow?.setBrowserView(null);
     selectedView = null;
   }
+
+  // @ts-ignore - undocumented method
   viewMap[id].webContents.destroy();
 
   delete viewMap[id];
   delete viewStateMap[id];
-}
+};
 
-export function destroyAllViews() {
+export const destroyAllViews = () => {
   for (const id in viewMap) {
     destroyView(id);
   }
-}
+};
 
-function setView(id) {
+const setView = (id) => {
   const mainWindow = getMainWindow();
 
-  if (viewStateMap[id].loadedInitialURL) {
-    mainWindow?.setBrowserView(viewMap[id]);
-  } else {
-    mainWindow?.setBrowserView(null);
+  if (mainWindow.getBrowserView() !== viewMap[id]) {
+    if (viewStateMap[id].loadedInitialURL) {
+      mainWindow?.setBrowserView(viewMap[id]);
+    } else {
+      mainWindow?.setBrowserView(null);
+    }
+    selectedView = id;
   }
-  selectedView = id;
-}
+};
 
-function setBounds(id, bounds) {
+const setBounds = (id: string, bounds) => {
   if (viewMap[id]) {
     viewMap[id].setBounds(bounds);
   }
-}
+};
 
-function focusView(id) {
+const focusView = (id: string) => {
   const mainWindow = getMainWindow();
   // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
   // also, make sure the view exists, since it might not if the app is shutting down
@@ -318,26 +315,26 @@ function focusView(id) {
   } else if (mainWindow) {
     mainWindow.webContents.focus();
   }
-}
+};
 
-function hideCurrentView() {
+const hideCurrentView = () => {
   const mainWindow = getMainWindow();
   mainWindow?.setBrowserView(null);
   selectedView = null;
   mainWindow?.webContents.focus();
-}
+};
 
-function getView(id) {
-  return viewMap[id];
-}
+// const getView = (id: string) => {
+//   return viewMap[id];
+// };
 
-export function getViewIDFromWebContents(contents: WebContents) {
+export const getViewIDFromWebContents = (contents: WebContents) => {
   for (let id in viewMap) {
     if (viewMap[id].webContents === contents) {
       return id;
     }
   }
-}
+};
 
 ipc.on("createView", (e, args) => {
   createView(
@@ -463,9 +460,7 @@ ipc.on("saveViewCapture", (e, data) => {
     // view could have been destroyed
   }
 
-  view.webContents.capturePage().then(function (image) {
+  view.webContents.capturePage().then((image) => {
     view.webContents.downloadURL(image.toDataURL());
   });
 });
-
-global.getView = getView;

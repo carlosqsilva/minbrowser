@@ -46,6 +46,7 @@ interface ItemData {
   };
 }
 
+
 export function createItem(data: ItemData) {
   const item = document.createElement("div");
   item.classList.add("searchbar-item");

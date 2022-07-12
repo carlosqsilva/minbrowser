@@ -1,39 +1,34 @@
-const path = require('path')
-const fs = require('fs')
+const esbuild = require("esbuild")
+const path = require("path");
+const fs = require("fs");
 
-const outFile = path.resolve(__dirname, '../dist/bundle.css')
+const entryFile = "./css/index.css";
+const outFile = path.resolve(__dirname, "../dist/bundle.css");
 
-const modules = [
-  'css/base.css',
-  'css/windowControls.css',
-  'css/modal.css',
-  'css/tabBar.css',
-  'css/tabEditor.css',
-  'css/taskOverlay.css',
-  'css/webviews.css',
-  'css/newTabPage.css',
-  'css/searchbar.css',
-  'css/listItem.css',
-  'css/bookmarkManager.css',
-  'css/findinpage.css',
-  'css/downloadManager.css',
-  'css/passwordManager.css',
-  'css/passwordCapture.css',
-  'css/passwordViewer.css',
-]
+const buildBrowserStyles = async () => {
+  const result = await esbuild.build({
+    bundle: true,
+    minify: true,
+    metafile: true,
+    outfile: outFile,
+    target: "esnext",
+    entryPoints: [entryFile],
+    loader: {
+      '.woff2': 'dataurl',
+    },
+  });
 
-function buildBrowserStyles () {
-  /* concatenate modules */
-  let output = ''
-  modules.forEach(function (script) {
-    output += fs.readFileSync(path.resolve(__dirname, '../', script)) + '\n'
-  })
+  const output = result?.metafile?.outputs || {};
 
-  fs.writeFileSync(outFile, output, 'utf-8')
-}
+  Object.keys(output).forEach((fileName) => {
+    // convert to kilobyte
+    const fileSize = output[fileName].bytes / 1000;
+    console.log(`${fileName} => ${fileSize} Kb`);
+  });
+};
 
 if (module.parent) {
-  module.exports = buildBrowserStyles
+  module.exports = buildBrowserStyles;
 } else {
-  buildBrowserStyles()
+  buildBrowserStyles();
 }

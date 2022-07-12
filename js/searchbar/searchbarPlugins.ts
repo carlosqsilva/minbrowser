@@ -1,5 +1,3 @@
-// @ts-check
-
 const searchbar = document.getElementById("searchbar");
 import * as searchbarUtils from "./searchbarUtils";
 

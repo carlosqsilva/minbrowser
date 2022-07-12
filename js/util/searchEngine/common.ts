@@ -5,6 +5,8 @@ interface SearchEngineObj {
   searchURL: string;
   suggestionsURL?: string;
   custom?: boolean;
+  queryParam?: string
+  urlObj?: URL
 }
 
 let currentSearchEngine: SearchEngineObj = {
@@ -18,7 +20,7 @@ export function getCurrentSearchEngine() {
 
 export const defaultSearchEngine = "DuckDuckGo";
 
-export const searchEngines = {
+export const searchEngines: Record<string, SearchEngineObj> = {
   DuckDuckGo: {
     name: "DuckDuckGo",
     searchURL: "https://duckduckgo.com/?q=%s&t=min",
@@ -39,8 +41,9 @@ export const searchEngines = {
   Brave: {
     name: "Brave",
     searchURL: "https://search.brave.com/search?q=%s&source=web",
-    suggestionURL: "https://search.brave.com/api/suggest?q=%s&rich=true&source=web",
-    queryParam: "q"
+    suggestionsURL:
+      "https://search.brave.com/api/suggest?q=%s&rich=true&source=web",
+    queryParam: "q",
   },
   Wikipedia: {
     name: "Wikipedia",
@@ -55,31 +58,31 @@ export const searchEngines = {
   },
 };
 
-for (const e in searchEngines) {
+for (const engine in searchEngines) {
   try {
-    searchEngines[e].urlObj = new URL(searchEngines[e].searchURL);
+    searchEngines[engine].urlObj = new URL(searchEngines[engine].searchURL);
   } catch (e) {}
 }
 
 export class SearchEngine {
-  static default = "DuckDuckGo"
+  static default = "DuckDuckGo";
   public currentSearchEngine: SearchEngineObj = {
     name: "",
     searchURL: "%s",
-  }
+  };
 
   constructor(settings: ISettings) {
-    settings.listen("searchEngine", (value) => {
-      if (value && value.name) {
-        this.currentSearchEngine = searchEngines[value.name];
-      } else if (value && value.url) {
+    settings.listen("searchEngine", (engine) => {
+      if (engine && engine.name) {
+        this.currentSearchEngine = searchEngines[engine.name];
+      } else if (engine && engine.url) {
         let searchDomain!: string;
         try {
-          searchDomain = new URL(value.url).hostname.replace("www.", "");
+          searchDomain = new URL(engine.url).hostname.replace("www.", "");
         } catch (e) {}
         this.currentSearchEngine = {
           name: searchDomain || "custom",
-          searchURL: value.url,
+          searchURL: engine.url,
           custom: true,
         };
       } else {
@@ -99,24 +102,27 @@ export class SearchEngine {
     } catch (e) {
       return null;
     }
-    for (var e in searchEngines) {
-      if (!searchEngines[e].urlObj) {
+    
+    for (let engine in searchEngines) {
+      if (!searchEngines[engine].urlObj) {
         continue;
       }
+      
       if (
-        searchEngines[e].urlObj.hostname === urlObj.hostname &&
-        searchEngines[e].urlObj.pathname === urlObj.pathname
+        searchEngines[engine].urlObj.hostname === urlObj.hostname &&
+        searchEngines[engine].urlObj.pathname === urlObj.pathname
       ) {
-        if (urlObj.searchParams.get(searchEngines[e].queryParam)) {
+        if (urlObj.searchParams.get(searchEngines[engine].queryParam)) {
           return {
-            engine: searchEngines[e].name,
+            engine: searchEngines[engine].name,
             search: urlObj.searchParams.get(
-              searchEngines[e].queryParam
-            ) as string,
+              searchEngines[engine].queryParam
+            ),
           };
         }
       }
     }
+    
     return null;
   }
 }

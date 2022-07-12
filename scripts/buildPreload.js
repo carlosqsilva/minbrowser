@@ -1,21 +1,20 @@
-const esbuild = require("esbuild")
-const path = require('path')
+const esbuild = require("esbuild");
+const path = require("path");
 
-const outFile = path.resolve(__dirname, '../dist/preload.js')
+const outFile = path.resolve(__dirname, "../dist/preload.js");
 
-async function buildPreload() {
+async function buildPreload({ minify = false }) {
   const result = await esbuild.build({
+    minify,
     bundle: true,
-    minify: true,
-    // keepNames: true,
     metafile: true,
     target: "esnext",
     platform: "node",
     format: "cjs",
     external: ["electron"],
-    entryPoints: ['./js/preload/index.ts'],
-    outfile: outFile
-  })
+    entryPoints: ["./js/preload/index.ts"],
+    outfile: outFile,
+  });
 
   const output = result?.metafile?.outputs || {};
 
@@ -27,7 +26,7 @@ async function buildPreload() {
 }
 
 if (module.parent) {
-  module.exports = buildPreload
+  module.exports = buildPreload;
 } else {
-  buildPreload()
+  buildPreload();
 }
